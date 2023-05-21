@@ -1,31 +1,20 @@
 package http_port
 
 import (
-	"fmt"
-	"test/web-service/database"
-	albums_controller "test/web-service/ports/http/controllers/albums"
-	albums_service "test/web-service/services/albums"
+	http_controllers "test/web-service/ports/http/controllers"
+	http_middlewares "test/web-service/ports/http/middlewares"
 
 	"github.com/gin-gonic/gin"
 )
 
-type HttpResponse struct {
-	Message     string
-	Status      int
-	Description string
-}
-
-func ErrorHandler(c *gin.Context) {
-	c.Next()
-	if len(c.Errors) > 0 {
-		c.JSON(-1, c.Errors)
-	}
-}
-
-func StartServer(port int16) {
+func NewHttpServer(middlewares []http_middlewares.IMiddleware, controllers []http_controllers.IController) *gin.Engine {
 	router := gin.Default()
-	router.Use(ErrorHandler)
-	database := database.NewDatabase()
-	albums_controller.NewAlbumsController(albums_service.NewAlbumsService(database)).RegisterRoutes(router)
-	router.Run(fmt.Sprintf("%s:%d", "localhost", port))
+	for _, middleware := range middlewares {
+		router.Use(middleware.Handle)
+	}
+
+	for _, controller := range controllers {
+		controller.RegisterRoutes(router)
+	}
+	return router
 }

@@ -1,7 +1,7 @@
-package http_port_controllers
+package http_controllers
 
 import "github.com/gin-gonic/gin"
 
-type Controller interface {
+type IController interface {
 	RegisterRoutes(r *gin.Engine)
 }

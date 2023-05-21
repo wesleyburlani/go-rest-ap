@@ -5,6 +5,7 @@ go 1.20
 require (
 	github.com/ahmetb/go-linq/v3 v3.2.0
 	github.com/gin-gonic/gin v1.9.0
+	github.com/goava/di v1.11.2
 )
 
 require (
