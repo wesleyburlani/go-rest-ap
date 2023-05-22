@@ -5,8 +5,9 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"test/web-service/models"
 	"testing"
+
+	"github.com/wesleyburlani/go-rest-api/models"
 
 	"github.com/gin-gonic/gin"
 )

@@ -1,8 +1,8 @@
 package albums_controller_test
 
 import (
-	albums_controller "test/web-service/ports/http/controllers/albums"
-	albums_service "test/web-service/services/albums"
+	albums_controller "github.com/wesleyburlani/go-rest-api/ports/http/controllers/albums"
+	albums_service "github.com/wesleyburlani/go-rest-api/services/albums"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"

@@ -1,8 +1,8 @@
 package http_port
 
 import (
-	http_controllers "test/web-service/ports/http/controllers"
-	http_middlewares "test/web-service/ports/http/middlewares"
+	http_controllers "github.com/wesleyburlani/go-rest-api/ports/http/controllers"
+	http_middlewares "github.com/wesleyburlani/go-rest-api/ports/http/middlewares"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"

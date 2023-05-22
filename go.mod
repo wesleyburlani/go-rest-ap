@@ -1,4 +1,4 @@
-module test/web-service
+module github.com/wesleyburlani/go-rest-api
 
 go 1.20
 

@@ -2,7 +2,8 @@ package database
 
 import (
 	"strconv"
-	"test/web-service/models"
+
+	"github.com/wesleyburlani/go-rest-api/models"
 
 	. "github.com/ahmetb/go-linq/v3"
 )

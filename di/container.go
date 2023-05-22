@@ -1,15 +1,15 @@
 package di
 
 import (
-	http_port "test/web-service/ports/http"
-	http_controllers "test/web-service/ports/http/controllers"
-	albums_controller "test/web-service/ports/http/controllers/albums"
-	http_middlewares "test/web-service/ports/http/middlewares"
-	albums_service "test/web-service/services/albums"
+	http_port "github.com/wesleyburlani/go-rest-api/ports/http"
+	http_controllers "github.com/wesleyburlani/go-rest-api/ports/http/controllers"
+	albums_controller "github.com/wesleyburlani/go-rest-api/ports/http/controllers/albums"
+	http_middlewares "github.com/wesleyburlani/go-rest-api/ports/http/middlewares"
+	albums_service "github.com/wesleyburlani/go-rest-api/services/albums"
 
-	logger_utils "test/web-service/utils/logger/hooks"
+	logger_utils "github.com/wesleyburlani/go-rest-api/utils/logger/hooks"
 
-	"test/web-service/database"
+	"github.com/wesleyburlani/go-rest-api/database"
 
 	"github.com/goava/di"
 	"github.com/sirupsen/logrus"

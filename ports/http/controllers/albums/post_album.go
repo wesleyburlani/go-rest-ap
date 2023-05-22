@@ -2,7 +2,8 @@ package albums_controller
 
 import (
 	"net/http"
-	"test/web-service/models"
+
+	"github.com/wesleyburlani/go-rest-api/models"
 
 	"github.com/gin-gonic/gin"
 )

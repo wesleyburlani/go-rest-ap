@@ -5,7 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	di "test/web-service/di"
+	di "github.com/wesleyburlani/go-rest-api/di"
 )
 
 func main() {

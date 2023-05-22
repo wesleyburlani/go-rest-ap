@@ -1,9 +1,10 @@
 package database_test
 
 import (
-	"test/web-service/database"
-	"test/web-service/models"
 	"testing"
+
+	"github.com/wesleyburlani/go-rest-api/database"
+	"github.com/wesleyburlani/go-rest-api/models"
 )
 
 func TestGetAlbum(t *testing.T) {

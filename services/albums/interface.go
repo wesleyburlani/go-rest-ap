@@ -1,6 +1,6 @@
 package albums_service
 
-import "test/web-service/models"
+import "github.com/wesleyburlani/go-rest-api/models"
 
 type IAlbumsService interface {
 	CreateAlbum(props models.AlbumProps) models.Album

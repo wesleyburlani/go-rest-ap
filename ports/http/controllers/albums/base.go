@@ -2,7 +2,8 @@ package albums_controller
 
 import (
 	"fmt"
-	albums_service "test/web-service/services/albums"
+
+	albums_service "github.com/wesleyburlani/go-rest-api/services/albums"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"

@@ -3,7 +3,8 @@ package albums_service
 import (
 	"fmt"
 	"strconv"
-	"test/web-service/models"
+
+	"github.com/wesleyburlani/go-rest-api/models"
 
 	linq "github.com/ahmetb/go-linq/v3"
 )

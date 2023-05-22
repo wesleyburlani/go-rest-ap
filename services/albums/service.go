@@ -2,8 +2,9 @@ package albums_service
 
 import (
 	"fmt"
-	"test/web-service/database"
-	"test/web-service/models"
+
+	"github.com/wesleyburlani/go-rest-api/database"
+	"github.com/wesleyburlani/go-rest-api/models"
 )
 
 type AlbumsService struct {
