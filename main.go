@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"github.com/wesleyburlani/go-rest-api/config"
 	di "github.com/wesleyburlani/go-rest-api/di"
 )
 
@@ -19,9 +20,16 @@ func main() {
 
 	var server *gin.Engine
 	err = container.Resolve(&server)
+
 	if err != nil {
 		panic(err)
 	}
 
-	server.Run(fmt.Sprintf("%s:%d", "localhost", 8080))
+	var config *config.Config
+	err = container.Resolve(&config)
+	if err != nil {
+		panic(err)
+	}
+
+	server.Run(fmt.Sprintf("%s:%d", config.HttpHost, config.HttpPort))
 }

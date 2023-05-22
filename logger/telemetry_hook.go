@@ -1,12 +1,11 @@
-package logger_utils
+package logger
 
 import (
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel/trace"
 )
 
-type TelemetryHook struct {
-}
+type TelemetryHook struct{}
 
 func (h *TelemetryHook) Levels() []logrus.Level {
 	return logrus.AllLevels
