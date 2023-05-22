@@ -1,7 +1,6 @@
 package albums_service
 
 import (
-	"errors"
 	"fmt"
 	"test/web-service/database"
 	"test/web-service/models"
@@ -28,17 +27,15 @@ func (instance *AlbumsService) GetAlbums(page int, limit int) []models.Album {
 }
 
 func (instance *AlbumsService) GetAlbum(id string) (models.Album, error) {
-	album, exists := instance.database.GetAlbum(id)
-	if exists == false {
-		return models.Album{}, errors.New(fmt.Sprintf("album with id %s not found", id))
+	if album, exists := instance.database.GetAlbum(id); exists {
+		return album, nil
 	}
-	return album, nil
+	return models.Album{}, fmt.Errorf("album with id %s not found", id)
 }
 
 func (instance *AlbumsService) UpdateAlbum(id string, props models.AlbumProps) (models.Album, error) {
-	album, updated := instance.database.UpdateAlbum(id, props)
-	if updated == false {
-		return models.Album{}, errors.New(fmt.Sprintf("album with id %s not found", id))
+	if album, updated := instance.database.UpdateAlbum(id, props); updated {
+		return album, nil
 	}
-	return album, nil
+	return models.Album{}, fmt.Errorf("album with id %s not found", id)
 }

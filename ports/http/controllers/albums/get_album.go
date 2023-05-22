@@ -26,5 +26,4 @@ func (instance *AlbumsController) GetAlbum(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, album)
-	return
 }

@@ -5,14 +5,17 @@ import (
 	albums_service "test/web-service/services/albums"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 )
 
 type AlbumsController struct {
+	logger        *logrus.Logger
 	albumsService albums_service.IAlbumsService
 }
 
-func NewAlbumsController(albumsService albums_service.IAlbumsService) *AlbumsController {
+func NewAlbumsController(logger *logrus.Logger, albumsService albums_service.IAlbumsService) *AlbumsController {
 	return &AlbumsController{
+		logger,
 		albumsService,
 	}
 }

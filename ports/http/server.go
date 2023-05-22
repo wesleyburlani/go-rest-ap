@@ -5,10 +5,13 @@ import (
 	http_middlewares "test/web-service/ports/http/middlewares"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 )
 
-func NewHttpServer(middlewares []http_middlewares.IMiddleware, controllers []http_controllers.IController) *gin.Engine {
-	router := gin.Default()
+func NewHttpServer(middlewares []http_middlewares.IMiddleware, controllers []http_controllers.IController, logger *logrus.Logger) *gin.Engine {
+	router := gin.New()
+	router.Use(gin.Recovery())
+	//gin.DefaultWriter = logger.Writer()
 	for _, middleware := range middlewares {
 		router.Use(middleware.Handle)
 	}

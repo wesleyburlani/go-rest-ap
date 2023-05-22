@@ -43,5 +43,4 @@ func (instance *AlbumsController) PutAlbum(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, album)
-	return
 }

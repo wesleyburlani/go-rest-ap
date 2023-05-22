@@ -26,5 +26,4 @@ func (instance *AlbumsController) PostAlbum(c *gin.Context) {
 		Artist: body.Artist,
 		Price:  body.Price,
 	}))
-	return
 }
