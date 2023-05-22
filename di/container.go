@@ -15,9 +15,13 @@ import (
 )
 
 func BuildContainer() (*di.Container, error) {
-	di.SetTracer(&di.StdTracer{})
+	cfg := config.LoadConfig()
+
+	if cfg.Mode != config.ReleaseMode {
+		di.SetTracer(&di.StdTracer{})
+	}
 	container, err := di.New(
-		di.Provide(config.LoadConfig),
+		di.Provide(func() *config.Config { return cfg }),
 		// ------- utils session -------
 		di.Provide(logger.NewLogger),
 		// ------- http server session -------
