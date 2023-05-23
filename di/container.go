@@ -28,7 +28,8 @@ func BuildContainer() (*di.Container, error) {
 		di.Provide(http_port.NewHttpServer),
 		// otel middleware must be the first on to be imported
 		di.Provide(http_middlewares.NewOtelMiddleware, di.As(new(http_middlewares.IMiddleware))),
-		di.Provide(http_middlewares.NewLoggerMiddleware, di.As(new(http_middlewares.IMiddleware))),
+		di.Provide(http_middlewares.NewBeforeRequestLoggerMiddleware, di.As(new(http_middlewares.IMiddleware))),
+		di.Provide(http_middlewares.NewAfterRquestLoggerMiddleware, di.As(new(http_middlewares.IMiddleware))),
 		di.Provide(http_middlewares.NewErrorMiddleware, di.As(new(http_middlewares.IMiddleware))),
 		di.Provide(albums_controller.NewAlbumsController, di.As(new(http_controllers.IController))),
 		di.Provide(albums_service.NewAlbumsService, di.As(new(albums_service.IAlbumsService))),
