@@ -9,6 +9,7 @@ require (
 	github.com/goava/di v1.11.2
 	github.com/joho/godotenv v1.5.1
 	github.com/sirupsen/logrus v1.9.2
+	github.com/thoas/go-funk v0.9.3
 	go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin v0.32.0
 	go.opentelemetry.io/otel v1.15.1
 	go.opentelemetry.io/otel/sdk v1.15.1

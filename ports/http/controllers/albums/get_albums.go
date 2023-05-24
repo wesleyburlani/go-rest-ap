@@ -12,9 +12,6 @@ type GetAlbumsQueryParams struct {
 }
 
 func (instance *AlbumsController) GetAlbums(c *gin.Context) {
-	ctx := c.Request.Context()
-	instance.logger.WithContext(ctx).Error("test")
-
 	params := GetAlbumsQueryParams{}
 
 	if err := c.BindQuery(&params); err != nil {
