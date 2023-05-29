@@ -5,7 +5,7 @@ import (
 
 	"github.com/wesleyburlani/go-rest-api/models"
 
-	. "github.com/ahmetb/go-linq/v3"
+	linq "github.com/ahmetb/go-linq/v3"
 )
 
 type Database struct {
@@ -24,12 +24,12 @@ func NewDatabase() *Database {
 func (instance *Database) GetAlbums(page int, limit int) []models.Album {
 	skip := (page) * (limit)
 	var results []models.Album
-	From(albums).Skip(skip).Take(limit).ToSlice(&results)
+	linq.From(albums).Skip(skip).Take(limit).ToSlice(&results)
 	return results
 }
 
 func (instance *Database) GetAlbum(id string) (models.Album, bool) {
-	album := From(albums).FirstWithT(func(a models.Album) bool {
+	album := linq.From(albums).FirstWithT(func(a models.Album) bool {
 		return a.ID == id
 	})
 

@@ -1,16 +1,16 @@
-package http_middlewares
+package http_api
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/wesleyburlani/go-rest-api/config"
+	"github.com/wesleyburlani/go-rest-api/utils"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 )
 
 type OtelMiddleware struct {
-	Config *config.Config
+	Config *utils.Config
 }
 
-func NewOtelMiddleware(cfx *config.Config) *OtelMiddleware {
+func NewOtelMiddleware(cfx *utils.Config) *OtelMiddleware {
 	return &OtelMiddleware{
 		Config: cfx,
 	}

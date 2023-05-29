@@ -1,12 +1,32 @@
-package albums_controller
+package http_api
 
 import (
 	"net/http"
 
-	"github.com/wesleyburlani/go-rest-api/models"
-
 	"github.com/gin-gonic/gin"
+	"github.com/wesleyburlani/go-rest-api/models"
+	"github.com/wesleyburlani/go-rest-api/services"
 )
+
+type PutAlbumController struct {
+	albumsService services.IAlbumsService
+}
+
+func NewPutAlbumController(
+	albumsService services.IAlbumsService,
+) *PutAlbumController {
+	return &PutAlbumController{
+		albumsService,
+	}
+}
+
+func (instance *PutAlbumController) Method() string {
+	return "PUT"
+}
+
+func (instance *PutAlbumController) RelativePath() string {
+	return "/albums/:id"
+}
 
 type PutAlbumUriParams struct {
 	Id string `uri:"id" binding:"required"`
@@ -18,7 +38,7 @@ type PutAlbumBody struct {
 	Price  float64 `json:"price" binding:"numeric"`
 }
 
-func (instance *AlbumsController) PutAlbum(c *gin.Context) {
+func (instance *PutAlbumController) Handle(c *gin.Context) {
 	uri := PutAlbumUriParams{}
 	body := PutAlbumBody{}
 

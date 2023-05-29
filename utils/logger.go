@@ -1,4 +1,4 @@
-package logger
+package utils
 
 import (
 	"github.com/sirupsen/logrus"
@@ -24,4 +24,16 @@ func (h *TelemetryHook) Fire(e *logrus.Entry) error {
 		e.Data["spanId"] = spanId.String()
 	}
 	return nil
+}
+
+func NewLogger(cfg *Config) *logrus.Logger {
+	logger := logrus.New()
+
+	if level, err := logrus.ParseLevel(cfg.LogLevel); err == nil {
+		logger.SetLevel(level)
+	}
+
+	logger.Formatter = &logrus.JSONFormatter{}
+	logger.AddHook(&TelemetryHook{})
+	return logger
 }

@@ -6,20 +6,19 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
-	"github.com/wesleyburlani/go-rest-api/config"
-	di "github.com/wesleyburlani/go-rest-api/di"
+	"github.com/wesleyburlani/go-rest-api/utils"
 )
 
 func main() {
 	tracerProvider := initTracer()
 	defer stopTracer(tracerProvider)
 
-	container, err := di.BuildContainer()
+	container, err := BuildContainerDI()
 	if err != nil {
 		panic(err)
 	}
 
-	container.Invoke(func(server *gin.Engine, config *config.Config, logger *logrus.Logger) {
+	err = container.Invoke(func(server *gin.Engine, config *utils.Config, logger *logrus.Logger) {
 		address := fmt.Sprintf("%s:%d", config.HttpHost, config.HttpPort)
 		logger.WithFields(logrus.Fields{
 			"address": address,
@@ -28,4 +27,8 @@ func main() {
 			panic(err)
 		}
 	})
+
+	if err != nil {
+		panic(err)
+	}
 }

@@ -1,4 +1,4 @@
-package http_middlewares
+package http_api
 
 import (
 	"os"
