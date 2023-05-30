@@ -1,49 +1,60 @@
 package services
 
 import (
-	"fmt"
-
-	"github.com/wesleyburlani/go-rest-api/database"
 	"github.com/wesleyburlani/go-rest-api/models"
+	"gorm.io/gorm"
 )
 
 type IAlbumsService interface {
 	CreateAlbum(props models.AlbumProps) models.Album
-	GetAlbum(id string) (models.Album, error)
+	GetAlbum(id uint) (models.Album, error)
 	GetAlbums(page int, limit int) []models.Album
-	UpdateAlbum(id string, props models.AlbumProps) (models.Album, error)
+	UpdateAlbum(id uint, props models.AlbumProps) (models.Album, error)
 }
 
 type AlbumsService struct {
-	database *database.Database
+	db *gorm.DB
 }
 
 func NewAlbumsService(
-	database *database.Database,
+	db *gorm.DB,
 ) *AlbumsService {
 	return &AlbumsService{
-		database,
+		db,
 	}
 }
 
 func (instance *AlbumsService) CreateAlbum(props models.AlbumProps) models.Album {
-	return instance.database.CreateAlbum(props)
+	album := models.Album{
+		Title:  props.Title,
+		Artist: props.Artist,
+		Price:  props.Price,
+	}
+	instance.db.Create(&album)
+	return album
 }
 
 func (instance *AlbumsService) GetAlbums(page int, limit int) []models.Album {
-	return instance.database.GetAlbums(page, limit)
+	albums := []models.Album{}
+	instance.db.Model(&models.Album{}).Offset(page * limit).Limit(limit).Find(&albums)
+	return albums
 }
 
-func (instance *AlbumsService) GetAlbum(id string) (models.Album, error) {
-	if album, exists := instance.database.GetAlbum(id); exists {
-		return album, nil
+func (instance *AlbumsService) GetAlbum(id uint) (models.Album, error) {
+	album := models.Album{
+		ID: id,
 	}
-	return models.Album{}, fmt.Errorf("album with id %s not found", id)
+	result := instance.db.First(&album)
+	return album, result.Error
 }
 
-func (instance *AlbumsService) UpdateAlbum(id string, props models.AlbumProps) (models.Album, error) {
-	if album, updated := instance.database.UpdateAlbum(id, props); updated {
-		return album, nil
+func (instance *AlbumsService) UpdateAlbum(id uint, props models.AlbumProps) (models.Album, error) {
+	album := models.Album{
+		ID:     id,
+		Title:  props.Title,
+		Artist: props.Artist,
+		Price:  props.Price,
 	}
-	return models.Album{}, fmt.Errorf("album with id %s not found", id)
+	result := instance.db.Save(&album)
+	return album, result.Error
 }

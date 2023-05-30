@@ -29,7 +29,7 @@ func (instance *PutAlbumController) RelativePath() string {
 }
 
 type PutAlbumUriParams struct {
-	Id string `uri:"id" binding:"required"`
+	Id uint `uri:"id" binding:"required"`
 }
 
 type PutAlbumBody struct {

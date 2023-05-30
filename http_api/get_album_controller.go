@@ -20,7 +20,7 @@ func NewGetAlbumController(
 }
 
 type GetAlbumUriParams struct {
-	Id string `uri:"id" binding:"required"`
+	Id uint `uri:"id" binding:"required"`
 }
 
 func (instance *GetAlbumController) Method() string {

@@ -20,9 +20,9 @@ func setupGetAlbumTest() (*gin.Engine, *services.MockAlbumsService) {
 	return router, svc
 }
 
-func getAlbumRequest(router *gin.Engine, id string) *httptest.ResponseRecorder {
+func getAlbumRequest(router *gin.Engine, id uint) *httptest.ResponseRecorder {
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", fmt.Sprintf("/albums/%s", id), nil)
+	req, _ := http.NewRequest("GET", fmt.Sprintf("/albums/%d", id), nil)
 	router.ServeHTTP(w, req)
 	return w
 }
@@ -46,7 +46,7 @@ func TestGetAlbum_Success(t *testing.T) {
 func TestGetAlbum_NotFound(t *testing.T) {
 	router, _ := setupGetAlbumTest()
 
-	response := getAlbumRequest(router, "not-found-id")
+	response := getAlbumRequest(router, 99999)
 	expected := 404
 	if response.Code != expected {
 		t.Errorf("Expected %d, received %d", expected, response.Code)

@@ -1,10 +1,16 @@
 package models
 
+import (
+	"time"
+)
+
 type Album struct {
-	ID     string  `json:"id"`
-	Title  string  `json:"title"`
-	Artist string  `json:"artist"`
-	Price  float64 `json:"price"`
+	ID        uint      `json:"id" gorm:"primaryKey;auto_increment:true"`
+	Title     string    `json:"title"`
+	Artist    string    `json:"artist"`
+	Price     float64   `json:"price"`
+	CreatedAt time.Time `json:"-"`
+	UpdatedAt time.Time `json:"-"`
 }
 
 type AlbumProps struct {

@@ -23,6 +23,7 @@ type Config struct {
 	Mode        string `env:"MODE" envDefault:"debug"`
 	HttpHost    string `env:"HTTP_HOST" envDefault:"localhost"`
 	HttpPort    int    `env:"HTTP_PORT" envDefault:"8080"`
+	DatabaseUrl string `env:"DATABASE_URL"`
 }
 
 func LoadConfig() *Config {
