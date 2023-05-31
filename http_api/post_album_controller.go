@@ -34,6 +34,17 @@ func (instance *PostAlbumController) RelativePath() string {
 	return "/albums"
 }
 
+// PostAlbum 	godoc
+// @Summary 	creates a new album
+// @Schemes 	http https
+// @Description creates a new album
+// @Tags 		albums
+// @Produce 	json
+// @Param 		request body 	models.AlbumProps 	true 	"album properties"
+// @Success 	201	{object} models.Album
+// @Failure		400	{object} models.Error
+// @Failure		500	{object} models.Error
+// @Router 		/albums [post]
 func (instance *PostAlbumController) Handle(c *gin.Context) {
 	body := PostAlbumBody{}
 

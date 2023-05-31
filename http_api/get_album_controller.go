@@ -31,6 +31,18 @@ func (instance *GetAlbumController) RelativePath() string {
 	return "/albums/:id"
 }
 
+// GetAlbum 	godoc
+// @Summary 	returns a album by its id
+// @Schemes 	http https
+// @Description returns a album by its id
+// @Tags 		albums
+// @Produce 	json
+// @Param		id		path	uint  true  "album id"
+// @Success 	200	{object} models.Album
+// @Failure		400	{object} models.Error
+// @Failure		404	{object} models.Error
+// @Failure		500	{object} models.Error
+// @Router 		/albums/{id} [get]
 func (instance *GetAlbumController) Handle(c *gin.Context) {
 	uri := GetAlbumUriParams{}
 

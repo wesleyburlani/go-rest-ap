@@ -38,6 +38,19 @@ type PutAlbumBody struct {
 	Price  float64 `json:"price" binding:"numeric"`
 }
 
+// PostAlbum 	godoc
+// @Summary 	updates an album
+// @Schemes 	http https
+// @Description updates an album
+// @Tags 		albums
+// @Produce 	json
+// @Param		id		path	uint  				true 	"album id"
+// @Param 		request body 	models.AlbumProps 	true 	"album properties"
+// @Success 	201	{object} models.Album
+// @Failure		400	{object} models.Error
+// @Failure		404	{object} models.Error
+// @Failure		500	{object} models.Error
+// @Router 		/albums/{id} [put]
 func (instance *PutAlbumController) Handle(c *gin.Context) {
 	uri := PutAlbumUriParams{}
 	body := PutAlbumBody{}
