@@ -1,4 +1,4 @@
-package http_api_test
+package albums_test
 
 import (
 	"fmt"
@@ -7,15 +7,15 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
-	"github.com/wesleyburlani/go-rest-api/http_api"
 	"github.com/wesleyburlani/go-rest-api/models"
-	"github.com/wesleyburlani/go-rest-api/services"
+	http_controller_albums "github.com/wesleyburlani/go-rest-api/ports/http/controllers/albums"
+	service_albums "github.com/wesleyburlani/go-rest-api/services/albums"
 )
 
-func setupGetAlbumTest() (*gin.Engine, *services.MockAlbumsService) {
+func setupGetAlbumTest() (*gin.Engine, *service_albums.MockAlbumsService) {
 	router := gin.New()
-	svc := services.NewMockAlbumsService()
-	controller := http_api.NewGetAlbumController(svc)
+	svc := service_albums.NewMockAlbumsService()
+	controller := http_controller_albums.NewGetAlbumController(svc)
 	router.Handle(controller.Method(), controller.RelativePath(), controller.Handle)
 	return router, svc
 }

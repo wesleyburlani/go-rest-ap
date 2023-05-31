@@ -1,4 +1,4 @@
-package http_api_test
+package albums_test
 
 import (
 	"encoding/json"
@@ -7,17 +7,17 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/wesleyburlani/go-rest-api/http_api"
 	"github.com/wesleyburlani/go-rest-api/models"
-	"github.com/wesleyburlani/go-rest-api/services"
+	http_controller_albums "github.com/wesleyburlani/go-rest-api/ports/http/controllers/albums"
+	service_albums "github.com/wesleyburlani/go-rest-api/services/albums"
 
 	"github.com/gin-gonic/gin"
 )
 
-func setupGetAlbumsTest() (*gin.Engine, *services.MockAlbumsService) {
+func setupGetAlbumsTest() (*gin.Engine, *service_albums.MockAlbumsService) {
 	router := gin.New()
-	svc := services.NewMockAlbumsService()
-	controller := http_api.NewGetAlbumsController(svc)
+	svc := service_albums.NewMockAlbumsService()
+	controller := http_controller_albums.NewGetAlbumsController(svc)
 	router.Handle(controller.Method(), controller.RelativePath(), controller.Handle)
 	return router, svc
 }

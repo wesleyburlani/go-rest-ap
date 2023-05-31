@@ -1,19 +1,19 @@
-package http_api
+package albums
 
 import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/wesleyburlani/go-rest-api/models"
-	"github.com/wesleyburlani/go-rest-api/services"
+	service_albums "github.com/wesleyburlani/go-rest-api/services/albums"
 )
 
 type PutAlbumController struct {
-	albumsService services.IAlbumsService
+	albumsService service_albums.IAlbumsService
 }
 
 func NewPutAlbumController(
-	albumsService services.IAlbumsService,
+	albumsService service_albums.IAlbumsService,
 ) *PutAlbumController {
 	return &PutAlbumController{
 		albumsService,
