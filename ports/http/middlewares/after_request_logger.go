@@ -9,6 +9,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
+	"go.opentelemetry.io/otel/trace"
 )
 
 type AfterRequestLoggerMiddleware struct {
@@ -42,6 +43,11 @@ func (instance *AfterRequestLoggerMiddleware) Handle(c *gin.Context) {
 		dataLength = 0
 	}
 
+	span := trace.SpanFromContext(c.Request.Context())
+	spanContext := span.SpanContext()
+	traceId := spanContext.TraceID()
+	spanId := spanContext.SpanID()
+
 	entry := instance.logger.WithFields(logrus.Fields{
 		"hostname":   hostname,
 		"statusCode": statusCode,
@@ -52,6 +58,8 @@ func (instance *AfterRequestLoggerMiddleware) Handle(c *gin.Context) {
 		"referer":    referer,
 		"dataLength": dataLength,
 		"userAgent":  clientUserAgent,
+		"traceId":    traceId,
+		"spanId":     spanId,
 	})
 
 	if len(c.Errors) > 0 {

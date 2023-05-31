@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
+	"go.opentelemetry.io/otel/trace"
 )
 
 type BeforeRequestLoggerMiddleware struct {
@@ -30,12 +31,19 @@ func (instance *BeforeRequestLoggerMiddleware) Handle(c *gin.Context) {
 		dataLength = 0
 	}
 
+	span := trace.SpanFromContext(c.Request.Context())
+	spanContext := span.SpanContext()
+	traceId := spanContext.TraceID()
+	spanId := spanContext.SpanID()
+
 	entry := instance.logger.WithFields(logrus.Fields{
 		"hostname":  hostname,
 		"clientIP":  clientIP,
 		"method":    c.Request.Method,
 		"path":      path,
 		"userAgent": clientUserAgent,
+		"traceId":   traceId,
+		"spanId":    spanId,
 	})
 	entry.Debug("request received")
 	c.Next()

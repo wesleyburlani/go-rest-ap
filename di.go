@@ -11,9 +11,7 @@ import (
 	"github.com/goava/di"
 )
 
-func BuildContainerDI() (*di.Container, error) {
-	cfg := utils.LoadConfig()
-
+func BuildContainerDI(cfg *utils.Config) (*di.Container, error) {
 	if cfg.Mode != utils.ReleaseMode {
 		di.SetTracer(&di.StdTracer{})
 	}

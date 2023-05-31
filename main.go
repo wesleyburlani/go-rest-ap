@@ -10,10 +10,12 @@ import (
 )
 
 func main() {
-	tracerProvider := initTracer()
+	cfg := utils.LoadConfig()
+
+	tracerProvider := initTracer(cfg)
 	defer stopTracer(tracerProvider)
 
-	container, err := BuildContainerDI()
+	container, err := BuildContainerDI(cfg)
 	if err != nil {
 		panic(err)
 	}
