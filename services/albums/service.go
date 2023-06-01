@@ -32,7 +32,7 @@ func (instance *AlbumsService) CreateAlbum(props models.AlbumProps) models.Album
 		Artist: props.Artist,
 		Price:  props.Price,
 	}
-	instance.db.Create(&album)
+	instance.db.WithContext(instance.ctx).Create(&album)
 	return album
 }
 
@@ -46,7 +46,7 @@ func (instance *AlbumsService) GetAlbum(id uint) (models.Album, error) {
 	album := models.Album{
 		ID: id,
 	}
-	result := instance.db.First(&album)
+	result := instance.db.WithContext(instance.ctx).First(&album)
 	return album, result.Error
 }
 
@@ -57,6 +57,6 @@ func (instance *AlbumsService) UpdateAlbum(id uint, props models.AlbumProps) (mo
 		Artist: props.Artist,
 		Price:  props.Price,
 	}
-	result := instance.db.Save(&album)
+	result := instance.db.WithContext(instance.ctx).Save(&album)
 	return album, result.Error
 }
