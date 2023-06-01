@@ -1,20 +1,29 @@
 package albums
 
 import (
+	"context"
+
 	"github.com/wesleyburlani/go-rest-api/models"
 	"gorm.io/gorm"
 )
 
 type AlbumsService struct {
-	db *gorm.DB
+	db  *gorm.DB
+	ctx context.Context
 }
 
 func NewAlbumsService(
 	db *gorm.DB,
 ) *AlbumsService {
 	return &AlbumsService{
-		db,
+		db:  db,
+		ctx: context.Background(),
 	}
+}
+
+func (instance *AlbumsService) WithContext(ctx context.Context) IAlbumsService {
+	instance.ctx = ctx
+	return instance
 }
 
 func (instance *AlbumsService) CreateAlbum(props models.AlbumProps) models.Album {
@@ -29,7 +38,7 @@ func (instance *AlbumsService) CreateAlbum(props models.AlbumProps) models.Album
 
 func (instance *AlbumsService) GetAlbums(page int, limit int) []models.Album {
 	albums := []models.Album{}
-	instance.db.Model(&models.Album{}).Offset(page * limit).Limit(limit).Find(&albums)
+	instance.db.WithContext(instance.ctx).Model(&models.Album{}).Offset(page * limit).Limit(limit).Find(&albums)
 	return albums
 }
 

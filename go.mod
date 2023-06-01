@@ -61,6 +61,8 @@ require (
 	github.com/swaggo/swag v1.16.1 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.11 // indirect
+	github.com/uptrace/opentelemetry-go-extra/otelgorm v0.2.1 // indirect
+	github.com/uptrace/opentelemetry-go-extra/otelsql v0.2.1 // indirect
 	github.com/urfave/cli/v2 v2.25.5 // indirect
 	github.com/xrash/smetrics v0.0.0-20201216005158-039620a65673 // indirect
 	go.opentelemetry.io/otel/exporters/jaeger v1.16.0 // indirect

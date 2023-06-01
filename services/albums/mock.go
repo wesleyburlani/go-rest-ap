@@ -1,6 +1,7 @@
 package albums
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/wesleyburlani/go-rest-api/models"
@@ -10,6 +11,7 @@ import (
 
 type MockAlbumsService struct {
 	Albums []models.Album
+	ctx    context.Context
 }
 
 func NewMockAlbumsService() *MockAlbumsService {
@@ -35,6 +37,11 @@ func NewMockAlbumsService() *MockAlbumsService {
 			},
 		},
 	}
+}
+
+func (instance *MockAlbumsService) WithContext(ctx context.Context) IAlbumsService {
+	instance.ctx = ctx
+	return instance
 }
 
 func (instance *MockAlbumsService) CreateAlbum(props models.AlbumProps) models.Album {

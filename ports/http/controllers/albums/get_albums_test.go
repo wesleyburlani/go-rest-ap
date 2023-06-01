@@ -3,10 +3,12 @@ package albums_test
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
+	"github.com/sirupsen/logrus"
 	"github.com/wesleyburlani/go-rest-api/models"
 	http_controller_albums "github.com/wesleyburlani/go-rest-api/ports/http/controllers/albums"
 	service_albums "github.com/wesleyburlani/go-rest-api/services/albums"
@@ -17,7 +19,9 @@ import (
 func setupGetAlbumsTest() (*gin.Engine, *service_albums.MockAlbumsService) {
 	router := gin.New()
 	svc := service_albums.NewMockAlbumsService()
-	controller := http_controller_albums.NewGetAlbumsController(svc)
+	logger := logrus.New()
+	logger.Out = io.Discard
+	controller := http_controller_albums.NewGetAlbumsController(logger, svc)
 	router.Handle(controller.Method(), controller.RelativePath(), controller.Handle)
 	return router, svc
 }
@@ -48,7 +52,12 @@ func TestGetAlbums_Success(t *testing.T) {
 	}
 
 	var result []models.Album
-	json.Unmarshal(response.Body.Bytes(), &result)
+	err := json.Unmarshal(response.Body.Bytes(), &result)
+
+	if err != nil {
+		t.Error(err)
+	}
+
 	expectLength := 5
 	if len(result) != expectLength {
 		t.Errorf("Expected %d, received %d", expectLength, len(result))

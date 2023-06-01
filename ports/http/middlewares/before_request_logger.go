@@ -26,10 +26,6 @@ func (instance *BeforeRequestLoggerMiddleware) Handle(c *gin.Context) {
 	path := c.Request.URL.Path
 	clientIP := c.ClientIP()
 	clientUserAgent := c.Request.UserAgent()
-	dataLength := c.Writer.Size()
-	if dataLength < 0 {
-		dataLength = 0
-	}
 
 	span := trace.SpanFromContext(c.Request.Context())
 	spanContext := span.SpanContext()

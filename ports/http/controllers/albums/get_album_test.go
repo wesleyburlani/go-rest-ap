@@ -2,11 +2,13 @@ package albums_test
 
 import (
 	"fmt"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 	"github.com/wesleyburlani/go-rest-api/models"
 	http_controller_albums "github.com/wesleyburlani/go-rest-api/ports/http/controllers/albums"
 	service_albums "github.com/wesleyburlani/go-rest-api/services/albums"
@@ -15,7 +17,9 @@ import (
 func setupGetAlbumTest() (*gin.Engine, *service_albums.MockAlbumsService) {
 	router := gin.New()
 	svc := service_albums.NewMockAlbumsService()
-	controller := http_controller_albums.NewGetAlbumController(svc)
+	logger := logrus.New()
+	logger.Out = io.Discard
+	controller := http_controller_albums.NewGetAlbumController(logger, svc)
 	router.Handle(controller.Method(), controller.RelativePath(), controller.Handle)
 	return router, svc
 }
