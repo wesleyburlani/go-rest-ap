@@ -1,7 +1,6 @@
 package middlewares
 
 import (
-	"fmt"
 	"math"
 	"net/http"
 	"os"
@@ -22,16 +21,14 @@ func NewAfterRquestLoggerMiddleware(logger *logrus.Logger) *AfterRequestLoggerMi
 	}
 }
 
-var timeFormat = "02/Jan/2006:15:04:05 -0700"
-
 func (instance *AfterRequestLoggerMiddleware) Handle(c *gin.Context) {
-	c.Next()
 	hostname, err := os.Hostname()
 	if err != nil {
 		hostname = "unknown"
 	}
 	path := c.Request.URL.Path
 	start := time.Now()
+	c.Next()
 	stop := time.Since(start)
 	latency := int(math.Ceil(float64(stop.Nanoseconds()) / 1_000_000.0))
 	statusCode := c.Writer.Status()
@@ -62,19 +59,7 @@ func (instance *AfterRequestLoggerMiddleware) Handle(c *gin.Context) {
 	if len(c.Errors) > 0 {
 		entry.Error(c.Errors.ByType(gin.ErrorTypePrivate).String())
 	} else {
-		msg := fmt.Sprintf(
-			"%s - %s [%s] \"%s %s\" %d %.2f \"%s\" \"%s\" (%dms)",
-			clientIP,
-			hostname,
-			time.Now().Format(timeFormat),
-			c.Request.Method,
-			path,
-			statusCode,
-			dataLength,
-			referer,
-			clientUserAgent,
-			latency,
-		)
+		msg := "response sent"
 		if statusCode >= http.StatusInternalServerError {
 			entry.Error(msg)
 		} else if statusCode >= http.StatusBadRequest {

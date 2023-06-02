@@ -10,7 +10,7 @@ services:
     ports:
       - 5432:5432
     volumes:
-      - db:/var/lib/postgresql/data 
+      - db:/var/lib/postgresql/data
 
   jaeger-all-in-one:
     image: jaegertracing/all-in-one:latest

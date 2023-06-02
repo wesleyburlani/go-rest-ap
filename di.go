@@ -19,7 +19,6 @@ func BuildContainerDI(cfg *utils.Config) (*di.Container, error) {
 		di.Provide(func() *utils.Config { return cfg }),
 		// ------- utils session -------
 		di.Provide(utils.NewLogger),
-		// otel middleware must be the first on to be imported
 
 		di.Provide(db.Init),
 
@@ -29,6 +28,7 @@ func BuildContainerDI(cfg *utils.Config) (*di.Container, error) {
 		di.Provide(http_controller_albums.NewPutAlbumController, di.As(new(http.Controller))),
 		di.Provide(http.NewServer),
 
+		// otel middleware must be the first one to be imported
 		di.Provide(http_middlewares.NewOtelMiddleware, di.As(new(http.Middleware))),
 		di.Provide(http_middlewares.NewBeforeRequestLoggerMiddleware, di.As(new(http.Middleware))),
 		di.Provide(http_middlewares.NewAfterRquestLoggerMiddleware, di.As(new(http.Middleware))),
