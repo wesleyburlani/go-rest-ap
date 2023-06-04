@@ -18,12 +18,14 @@ const (
 )
 
 type Config struct {
-	ServiceName string `env:"SERVICE_NAME" envDefault:"service-name"`
-	LogLevel    string `env:"LOG_LEVEL" envDefault:"info"`
-	Mode        string `env:"MODE" envDefault:"debug"`
-	HttpHost    string `env:"HTTP_HOST" envDefault:"localhost"`
-	HttpPort    int    `env:"HTTP_PORT" envDefault:"8080"`
-	DatabaseUrl string `env:"DATABASE_URL"`
+	ServiceName   string `env:"SERVICE_NAME" envDefault:"service-name"`
+	LogLevel      string `env:"LOG_LEVEL" envDefault:"info"`
+	Mode          string `env:"MODE" envDefault:"debug"`
+	HttpHost      string `env:"HTTP_HOST" envDefault:"localhost"`
+	HttpPort      int    `env:"HTTP_PORT" envDefault:"8080"`
+	DatabaseUrl   string `env:"DATABASE_URL"`
+	WebSocketHost string `env:"WEBSOCKET_HOST" envDefault:"localhost"`
+	WebSocketPort int    `env:"WEBSOCKET_PORT" envDefault:"1234"`
 }
 
 func LoadConfig() *Config {
