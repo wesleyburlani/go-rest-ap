@@ -8,8 +8,8 @@ import (
 
 type IAlbumsService interface {
 	WithContext(ctx context.Context) IAlbumsService
-	CreateAlbum(props models.AlbumProps) models.Album
-	GetAlbum(id uint) (models.Album, error)
-	GetAlbums(page int, limit int) []models.Album
-	UpdateAlbum(id uint, props models.AlbumProps) (models.Album, error)
+	Create(props models.AlbumProps) models.Album
+	Get(id uint) (models.Album, error)
+	List(page int, limit int) []models.Album
+	Update(id uint, props models.AlbumProps) (models.Album, error)
 }

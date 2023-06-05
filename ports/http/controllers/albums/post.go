@@ -63,7 +63,7 @@ func (instance *PostAlbumController) Handle(c *gin.Context) {
 	c.JSON(http.StatusCreated, instance.
 		albumsService.
 		WithContext(c.Request.Context()).
-		CreateAlbum(models.AlbumProps{
+		Create(models.AlbumProps{
 			Title:  body.Title,
 			Artist: body.Artist,
 			Price:  body.Price,

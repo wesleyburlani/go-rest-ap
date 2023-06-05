@@ -78,7 +78,7 @@ func (instance *PutAlbumController) Handle(c *gin.Context) {
 	album, err := instance.
 		albumsService.
 		WithContext(c.Request.Context()).
-		UpdateAlbum(uri.Id, models.AlbumProps{
+		Update(uri.Id, models.AlbumProps{
 			Title:  body.Title,
 			Artist: body.Artist,
 			Price:  body.Price,

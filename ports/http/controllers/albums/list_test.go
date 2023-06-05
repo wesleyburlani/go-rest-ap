@@ -21,31 +21,31 @@ func setupGetAlbumsTest() (*gin.Engine, *service_albums.MockAlbumsService) {
 	svc := service_albums.NewMockAlbumsService()
 	logger := logrus.New()
 	logger.Out = io.Discard
-	controller := http_controller_albums.NewGetAlbumsController(logger, svc)
+	controller := http_controller_albums.NewListAlbumsController(logger, svc)
 	router.Handle(controller.Method(), controller.RelativePath(), controller.Handle)
 	return router, svc
 }
 
-func getAlbumsRequest(router *gin.Engine, page string, limit string) *httptest.ResponseRecorder {
+func listAlbumsRequest(router *gin.Engine, page string, limit string) *httptest.ResponseRecorder {
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", fmt.Sprintf("/albums?page=%s&limit=%s", page, limit), nil)
 	router.ServeHTTP(w, req)
 	return w
 }
 
-func TestGetAlbums_Success(t *testing.T) {
+func TestListAlbums_Success(t *testing.T) {
 	router, svc := setupGetAlbumsTest()
 
 	svc.Albums = []models.Album{}
 	for i := 0; i < 5; i++ {
-		svc.CreateAlbum(models.AlbumProps{
+		svc.Create(models.AlbumProps{
 			Title:  "test",
 			Artist: "test",
 			Price:  1.0,
 		})
 	}
 
-	response := getAlbumsRequest(router, "0", "10")
+	response := listAlbumsRequest(router, "0", "10")
 	expected := 200
 	if response.Code != expected {
 		t.Errorf("Expected %d, received %d", expected, response.Code)
@@ -64,20 +64,20 @@ func TestGetAlbums_Success(t *testing.T) {
 	}
 }
 
-func TestGetAlbums_InvalidQueryParamPage(t *testing.T) {
+func TestListAlbums_InvalidQueryParamPage(t *testing.T) {
 	router, _ := setupGetAlbumsTest()
 
-	response := getAlbumsRequest(router, "-1", "1")
+	response := listAlbumsRequest(router, "-1", "1")
 	expected := 400
 	if response.Code != expected {
 		t.Errorf("Expected %d, received %d", expected, response.Code)
 	}
 }
 
-func TestGetAlbums_InvalidQueryParamLimit(t *testing.T) {
+func TestListAlbums_InvalidQueryParamLimit(t *testing.T) {
 	router, _ := setupGetAlbumsTest()
 
-	response := getAlbumsRequest(router, "0", "-1")
+	response := listAlbumsRequest(router, "0", "-1")
 	expected := 400
 	if response.Code != expected {
 		t.Errorf("Expected %d, received %d", expected, response.Code)

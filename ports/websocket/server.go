@@ -25,7 +25,7 @@ type Middleware interface {
 type SocketHandlerFunc func(ctx context.Context, conn *websocket.Conn)
 
 type SocketAuthMessage struct {
-	Token string `json:"tokaen"`
+	Token string `json:"token"`
 }
 
 func SocketHandler(logger *logrus.Logger, handlerFunc SocketHandlerFunc) gin.HandlerFunc {
@@ -35,9 +35,11 @@ func SocketHandler(logger *logrus.Logger, handlerFunc SocketHandlerFunc) gin.Han
 		})
 
 		if err != nil {
-			logger.WithContext(c.Request.Context()).WithFields(logrus.Fields{
-				"error": err.Error(),
-			}).Debug("connection error")
+			logger.
+				WithContext(c.Request.Context()).
+				WithFields(logrus.Fields{
+					"error": err.Error(),
+				}).Debug("connection error")
 			return
 		}
 
@@ -50,15 +52,20 @@ func SocketHandler(logger *logrus.Logger, handlerFunc SocketHandlerFunc) gin.Han
 		var message SocketAuthMessage
 		json.Unmarshal(raw, &message)
 
-		err = validator.New().Struct(&message)
-
-		if err != nil {
-			logger.WithContext(c.Request.Context()).WithFields(logrus.Fields{"error": err}).Debug("Unauthorized")
+		if err = validator.New().Struct(&message); err != nil {
+			logger.
+				WithContext(c.Request.Context()).
+				WithFields(logrus.Fields{
+					"error": err,
+				}).
+				Debug("Unauthorized")
 			connection.Close(websocket.StatusPolicyViolation, "Unauthorized")
 		}
 
 		if message.Token != "123" {
-			logger.WithContext(c.Request.Context()).Debug("Unauthorized")
+			logger.
+				WithContext(c.Request.Context()).
+				Debug("Unauthorized")
 			connection.Close(websocket.StatusPolicyViolation, "Unauthorized")
 		}
 

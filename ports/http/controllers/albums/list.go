@@ -8,31 +8,31 @@ import (
 	service_albums "github.com/wesleyburlani/go-rest-api/services/albums"
 )
 
-type GetAlbumsController struct {
+type ListAlbumsController struct {
 	logger        *logrus.Logger
 	albumsService service_albums.IAlbumsService
 }
 
-func NewGetAlbumsController(
+func NewListAlbumsController(
 	logger *logrus.Logger,
 	albumsService service_albums.IAlbumsService,
-) *GetAlbumsController {
-	return &GetAlbumsController{
+) *ListAlbumsController {
+	return &ListAlbumsController{
 		logger,
 		albumsService,
 	}
 }
 
-type GetAlbumsQueryParams struct {
+type ListAlbumsQueryParams struct {
 	Page  int `form:"page,default=0" binding:"numeric,gte=0"`
 	Limit int `form:"limit,default=20" binding:"numeric,gte=0"`
 }
 
-func (instance *GetAlbumsController) Method() string {
+func (instance *ListAlbumsController) Method() string {
 	return "GET"
 }
 
-func (instance *GetAlbumsController) RelativePath() string {
+func (instance *ListAlbumsController) RelativePath() string {
 	return "/albums"
 }
 
@@ -48,8 +48,8 @@ func (instance *GetAlbumsController) RelativePath() string {
 // @Failure			400			{object}	models.Error
 // @Failure			500			{object}	models.Error
 // @Router			/albums	[get]
-func (instance *GetAlbumsController) Handle(c *gin.Context) {
-	params := GetAlbumsQueryParams{}
+func (instance *ListAlbumsController) Handle(c *gin.Context) {
+	params := ListAlbumsQueryParams{}
 
 	if err := c.BindQuery(&params); err != nil {
 		err := c.AbortWithError(http.StatusBadRequest, err)
@@ -64,6 +64,6 @@ func (instance *GetAlbumsController) Handle(c *gin.Context) {
 		instance.
 			albumsService.
 			WithContext(c.Request.Context()).
-			GetAlbums(params.Page, params.Limit),
+			List(params.Page, params.Limit),
 	)
 }

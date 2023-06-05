@@ -12,6 +12,17 @@ import (
 )
 
 func main() {
+
+	jwtAuth := utils.NewJwtAuth([]byte("test"))
+	token, err := jwtAuth.Generate(utils.JwtProps{Username: "test"})
+	fmt.Printf("%v\n%v\n", token, err)
+
+	props, err := jwtAuth.Decode(token)
+	fmt.Printf("%v\n%v\n", props, err)
+
+	props, err = jwtAuth.Decode("asfdf")
+	fmt.Printf("%v\n%v\n", props, err)
+
 	cfg := utils.LoadConfig()
 
 	tracerProvider := initTracer(cfg)

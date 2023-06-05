@@ -61,7 +61,7 @@ func (instance *GetAlbumController) Handle(c *gin.Context) {
 	album, err := instance.
 		albumsService.
 		WithContext(c.Request.Context()).
-		GetAlbum(uri.Id)
+		Get(uri.Id)
 
 	if err != nil {
 		err := c.AbortWithError(http.StatusNotFound, err)

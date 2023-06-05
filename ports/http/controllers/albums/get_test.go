@@ -34,7 +34,7 @@ func getAlbumRequest(router *gin.Engine, id uint) *httptest.ResponseRecorder {
 func TestGetAlbum_Success(t *testing.T) {
 	router, svc := setupGetAlbumTest()
 
-	album := svc.CreateAlbum(models.AlbumProps{
+	album := svc.Create(models.AlbumProps{
 		Title:  "test",
 		Artist: "test",
 		Price:  1.0,

@@ -44,7 +44,7 @@ func (instance *MockAlbumsService) WithContext(ctx context.Context) IAlbumsServi
 	return instance
 }
 
-func (instance *MockAlbumsService) CreateAlbum(props models.AlbumProps) models.Album {
+func (instance *MockAlbumsService) Create(props models.AlbumProps) models.Album {
 	album := models.Album{
 		ID:     uint(len(instance.Albums) + 2),
 		Title:  props.Title,
@@ -56,14 +56,14 @@ func (instance *MockAlbumsService) CreateAlbum(props models.AlbumProps) models.A
 	return album
 }
 
-func (instance *MockAlbumsService) GetAlbums(page int, limit int) []models.Album {
+func (instance *MockAlbumsService) List(page int, limit int) []models.Album {
 	skip := (page) * (limit)
 	var results []models.Album
 	linq.From(instance.Albums).Skip(skip).Take(limit).ToSlice(&results)
 	return results
 }
 
-func (instance *MockAlbumsService) GetAlbum(id uint) (models.Album, error) {
+func (instance *MockAlbumsService) Get(id uint) (models.Album, error) {
 	album := linq.From(instance.Albums).FirstWithT(func(a models.Album) bool {
 		return a.ID == id
 	})
@@ -75,7 +75,7 @@ func (instance *MockAlbumsService) GetAlbum(id uint) (models.Album, error) {
 	return album.(models.Album), nil
 }
 
-func (instance *MockAlbumsService) UpdateAlbum(id uint, props models.AlbumProps) (models.Album, error) {
+func (instance *MockAlbumsService) Update(id uint, props models.AlbumProps) (models.Album, error) {
 	for index, album := range instance.Albums {
 		if album.ID == id {
 			instance.Albums[index] = models.Album{
