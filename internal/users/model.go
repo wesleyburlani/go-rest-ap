@@ -8,8 +8,8 @@ import (
 )
 
 type User struct {
-	ID        uint      `json:"id" gorm:"primaryKey;auto_increment:true" binding:"-"`
-	Email     string    `json:"email"`
+	ID        uint      `json:"id" gorm:"primaryKey;auto_increment:true"`
+	Email     string    `json:"email" gorm:"unique"`
 	Password  string    `json:"password,omitempty"`
 	CreatedAt time.Time `json:"-"`
 	UpdatedAt time.Time `json:"-"`

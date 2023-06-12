@@ -1,9 +1,6 @@
 package http
 
 import (
-	"errors"
-	"net/http"
-
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	swaggerfiles "github.com/swaggo/files"
@@ -14,18 +11,24 @@ import (
 	docs "github.com/wesleyburlani/go-rest-api/swagger"
 )
 
+func abortWithStatusJson(ctx *gin.Context, code int, message string) {
+	ctx.AbortWithStatusJSON(code, http_server.HTTPError{
+		Code:    code,
+		Message: message,
+	})
+}
+
 func HandleError(ctx *gin.Context, err error) {
 	if err == nil {
 		return
 	}
 
-	var unknownError *custom_errors.UnknownError
-	if errors.As(err, &unknownError) {
-		code := http.StatusInternalServerError
-		ctx.AbortWithStatusJSON(code, http_server.HTTPError{
-			Code:    code,
-			Message: err.Error(),
-		})
+	if ok, e := custom_errors.IsConflictError(err); ok {
+		abortWithStatusJson(ctx, e.StatusCode(), e.Message)
+	}
+
+	if ok, e := custom_errors.IsUnknownError(err); ok {
+		abortWithStatusJson(ctx, e.StatusCode(), e.Message)
 	}
 }
 

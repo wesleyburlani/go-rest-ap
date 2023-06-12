@@ -2,9 +2,10 @@ package users
 
 import (
 	"context"
+	"errors"
 
 	"github.com/sirupsen/logrus"
-	"github.com/wesleyburlani/go-rest-api/pkg/errors"
+	custom_errors "github.com/wesleyburlani/go-rest-api/pkg/errors"
 	"gorm.io/gorm"
 )
 
@@ -36,10 +37,14 @@ func (s *Service) WithContext(ctx context.Context) *Service {
 }
 
 func (s *Service) Create(user User) (User, error) {
+	if tx := s.db.WithContext(s.ctx).First(&user); tx.Error == nil {
+		return User{}, custom_errors.NewConflictError("user already exist")
+	}
+
 	tx := s.db.WithContext(s.ctx).Create(&user)
 
 	if tx.Error != nil {
-		return User{}, errors.NewUnknownErrorWithParent("error creating user on database", tx.Error)
+		return User{}, custom_errors.NewUnknownErrorWithParent("error creating user on database", tx.Error)
 	}
 
 	s.logger.WithContext(s.ctx).WithFields(logrus.Fields{
@@ -47,5 +52,18 @@ func (s *Service) Create(user User) (User, error) {
 	}).Debug("new user created")
 
 	user.Password = ""
+	return user, nil
+}
+
+func (s *Service) Get(id uint) (User, error) {
+	user := User{}
+	tx := s.db.WithContext(s.ctx).First(&user)
+
+	if tx.Error != nil {
+		if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
+			return User{}, custom_errors.NewNotFoundErrorWithParent("user not found", tx.Error)
+		}
+		return User{}, custom_errors.NewUnknownErrorWithParent("error finding user on database", tx.Error)
+	}
 	return user, nil
 }

@@ -1,6 +1,10 @@
 package errors
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+	"net/http"
+)
 
 type UnknownError struct {
 	Message string
@@ -20,9 +24,18 @@ func NewUnknownErrorWithParent(message string, parent error) *UnknownError {
 	}
 }
 
+func IsUnknownError(err error) (bool, *UnknownError) {
+	var e *UnknownError
+	return errors.As(err, &e), e
+}
+
 func (e *UnknownError) Error() string {
 	if e.Parent != nil {
 		return fmt.Sprintf("%s: %s\n", e.Message, e.Parent.Error())
 	}
 	return e.Message
+}
+
+func (e *UnknownError) StatusCode() int {
+	return http.StatusInternalServerError
 }

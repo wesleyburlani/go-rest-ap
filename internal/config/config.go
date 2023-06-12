@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path"
+	"runtime"
 	"strings"
 
 	"github.com/caarlos0/env/v8"
@@ -35,7 +37,10 @@ func LoadConfig() *Config {
 	if environment != "" {
 		fileName = fmt.Sprintf(".env.%s", environment)
 	}
-	if err := godotenv.Load(fileName); err != nil && !os.IsNotExist(err) {
+	_, currentFileName, _, _ := runtime.Caller(0)
+	currentFilePath := path.Join(path.Dir(currentFileName))
+	path := fmt.Sprintf("%s/../../%s", currentFilePath, fileName)
+	if err := godotenv.Load(path); err != nil && !os.IsNotExist(err) {
 		log.Fatalln("Error loading .env")
 	}
 	config := Config{}
