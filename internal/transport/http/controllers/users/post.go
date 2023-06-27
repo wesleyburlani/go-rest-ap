@@ -59,7 +59,7 @@ func (ctl *Post) Handle(ctx *gin.Context) {
 	user, err := ctl.
 		svc.
 		WithContext(ctx.Request.Context()).
-		Create(users.User{
+		Create(users.CreateUserProps{
 			Email:    body.Email,
 			Password: body.Password,
 		})

@@ -6,10 +6,11 @@ services:
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=go-rest-api
+      - POSTGRES_MULTIPLE_DATABASES=go-rest-api,go-rest-api_tests
     ports:
       - 5432:5432
     volumes:
+      - ./scripts/create-multiple-postgresql-databases.sh:/docker-entrypoint-initdb.d/create-multiple-postgresql-databases.sh
       - db:/var/lib/postgresql/data
 
   jaeger-all-in-one:
@@ -38,3 +39,4 @@ services:
 
 volumes:
   db:
+  test_db:
