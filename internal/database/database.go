@@ -18,7 +18,7 @@ func Init(c *config.Config, logger *logrus.Logger) *gorm.DB {
 	gormConfig := gorm.Config{}
 
 	if c.Mode == config.ReleaseMode {
-		gormConfig.Logger = gormLogger.Default.LogMode(gormLogger.Silent)
+		gormConfig.Logger = gormLogger.Default.LogMode(gormLogger.Info)
 	}
 
 	url, err := url.Parse(c.DatabaseUrl)

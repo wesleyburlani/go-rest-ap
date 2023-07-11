@@ -3,6 +3,7 @@ module github.com/wesleyburlani/go-rest-api
 go 1.20
 
 require (
+	github.com/XSAM/otelsql v0.23.0
 	github.com/brianvoe/gofakeit/v6 v6.22.0
 	github.com/caarlos0/env/v8 v8.0.0
 	github.com/gin-gonic/gin v1.9.0
@@ -10,6 +11,7 @@ require (
 	github.com/goava/di v1.11.2
 	github.com/golang-jwt/jwt/v5 v5.0.0
 	github.com/joho/godotenv v1.5.1
+	github.com/lib/pq v1.10.9
 	github.com/sirupsen/logrus v1.9.2
 	github.com/stretchr/testify v1.8.4
 	github.com/swaggo/files v1.0.1

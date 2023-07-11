@@ -7,9 +7,11 @@ test:
 # updates swagger docs based on the latest code
 swagger:
 	swag init -g internal/transport/http/server.go --output swagger
+db-client:
+	docker run --rm -v $$(pwd):/src -w /src kjconroy/sqlc generate
 # builds the application and outputs to bin/ folder
 build:
-	make -B swagger && go build -o bin/api cmd/api/main.go
+	make -B db-client && make -B swagger && go build -o bin/api cmd/api/main.go
 # deletes the contents of bin/ folder
 clean:
 	rm -Rf bin/*

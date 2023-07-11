@@ -2,8 +2,10 @@ package di
 
 import (
 	"github.com/goava/di"
+	_ "github.com/lib/pq"
 	"github.com/wesleyburlani/go-rest-api/internal/config"
 	"github.com/wesleyburlani/go-rest-api/internal/database"
+	"github.com/wesleyburlani/go-rest-api/internal/db"
 	http_server "github.com/wesleyburlani/go-rest-api/internal/transport/http"
 	users_controllers "github.com/wesleyburlani/go-rest-api/internal/transport/http/controllers/users"
 	users_service "github.com/wesleyburlani/go-rest-api/internal/users"
@@ -44,6 +46,7 @@ func BuildContainer(cfg *config.Config) (*di.Container, error) {
 	websocketServer := di.Options()
 
 	services := di.Options(
+		di.Provide(db.NewDatabase),
 		di.Provide(database.Init),
 		di.Provide(users_service.NewService),
 	)

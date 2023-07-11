@@ -1,7 +1,9 @@
 package users_test
 
 import (
+	"database/sql"
 	"io"
+	"log"
 	"testing"
 
 	"github.com/brianvoe/gofakeit/v6"
@@ -40,8 +42,8 @@ func TestServiceTestSuite(t *testing.T) {
 
 func (s *ServiceTestSuite) TestCreateUser() {
 	originalUser := users.CreateUserProps{
-		Email:    gofakeit.Email(),
-		Password: generateRandomPassword(),
+		Email:    sql.NullString{String: gofakeit.Email(), Valid: true},
+		Password: sql.NullString{String: generateRandomPassword(), Valid: true},
 	}
 
 	// make sure it wasn't created before
@@ -57,13 +59,13 @@ func (s *ServiceTestSuite) TestCreateUser() {
 	s.Equal(nil, err)
 	s.NotEmpty(createdUser.ID)
 	s.Equal(originalUser.Email, createdUser.Email)
-	s.Equal("", createdUser.Password)
+	s.Equal("", createdUser.Password.String)
 }
 
 func (s *ServiceTestSuite) TestCreateUser_UserAlreadyExists() {
 	user := users.CreateUserProps{
-		Email:    gofakeit.Email(),
-		Password: generateRandomPassword(),
+		Email:    sql.NullString{String: gofakeit.Email(), Valid: true},
+		Password: sql.NullString{String: generateRandomPassword(), Valid: true},
 	}
 
 	createdUser, err := s.svc.Create(user)
@@ -75,17 +77,19 @@ func (s *ServiceTestSuite) TestCreateUser_UserAlreadyExists() {
 
 func (s *ServiceTestSuite) TestCreateUser_Validation() {
 	user := users.CreateUserProps{
-		Password: generateRandomPassword(),
+		Email:    sql.NullString{String: "", Valid: false},
+		Password: sql.NullString{String: generateRandomPassword(), Valid: true},
 	}
 	createdUser, err := s.svc.Create(user)
 
 	if err == nil {
 		s.db.Delete(&createdUser)
+		log.Fatalf("should have failed %v", createdUser)
 	}
 
 	s.True(custom_errors.IsValidationError(err))
 
-	user.Email = gofakeit.Email()
+	user.Email = sql.NullString{String: gofakeit.Email(), Valid: true}
 	createdUser, err = s.svc.Create(user)
 
 	if err == nil {
@@ -97,12 +101,12 @@ func (s *ServiceTestSuite) TestCreateUser_Validation() {
 
 func (s *ServiceTestSuite) TestUpdateUser() {
 	createUser := users.CreateUserProps{
-		Email:    gofakeit.Email(),
-		Password: generateRandomPassword(),
+		Email:    sql.NullString{String: gofakeit.Email(), Valid: true},
+		Password: sql.NullString{String: generateRandomPassword(), Valid: true},
 	}
 
 	updateUser := users.UpdateUserProps{
-		Email: gofakeit.Email(),
+		Password: sql.NullString{String: generateRandomPassword(), Valid: true},
 	}
 
 	// make sure it wasn't created before
@@ -122,8 +126,8 @@ func (s *ServiceTestSuite) TestUpdateUser() {
 	s.Equal("", updatedUser.Password)
 
 	updatePassword := users.UpdateUserProps{
-		Email:    "",
-		Password: generateRandomPassword(),
+		Email:    sql.NullString{String: gofakeit.Email(), Valid: true},
+		Password: sql.NullString{String: generateRandomPassword(), Valid: true},
 	}
 	updatedPassword, err := s.svc.Update(createdUser.ID, updatePassword)
 	s.Nil(err)

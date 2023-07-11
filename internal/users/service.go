@@ -2,7 +2,10 @@ package users
 
 import (
 	"context"
+	"database/sql"
+	"database/sql/driver"
 	"errors"
+	"reflect"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/sirupsen/logrus"
@@ -37,8 +40,24 @@ func (s *Service) WithContext(ctx context.Context) *Service {
 	return s
 }
 
+func ValidateValuer(field reflect.Value) interface{} {
+
+	if valuer, ok := field.Interface().(driver.Valuer); ok {
+
+		val, err := valuer.Value()
+		if err == nil {
+			return val
+		}
+		// handle the error how you want
+	}
+
+	return nil
+}
+
 func (s *Service) Create(user CreateUserProps) (User, error) {
-	if err := validator.New().Struct(&user); err != nil {
+	validate := validator.New()
+	validate.RegisterCustomTypeFunc(ValidateValuer, sql.NullString{}, sql.NullInt64{}, sql.NullBool{}, sql.NullFloat64{})
+	if err := validate.Struct(&user); err != nil {
 		return User{}, custom_errors.NewValidationErrorWithParent("field validation error", err)
 	}
 
@@ -60,7 +79,7 @@ func (s *Service) Create(user CreateUserProps) (User, error) {
 		"id": registry.ID,
 	}).Debug("new user created")
 
-	registry.Password = ""
+	registry.Password = sql.NullString{String: ""}
 	return registry, nil
 }
 
@@ -92,7 +111,7 @@ func (s *Service) Update(id uint, user UpdateUserProps) (User, error) {
 		"id": registry.ID,
 	}).Debug("user updated")
 
-	registry.Password = ""
+	registry.Password = sql.NullString{String: ""}
 	return registry, nil
 }
 

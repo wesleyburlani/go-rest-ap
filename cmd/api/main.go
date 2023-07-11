@@ -15,6 +15,7 @@ import (
 )
 
 func main() {
+
 	cfg := config.LoadConfig()
 
 	tracerProvider := otel.Init(&otel.OtelConfig{
