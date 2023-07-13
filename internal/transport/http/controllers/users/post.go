@@ -43,8 +43,8 @@ func (ctl *Post) RelativePath() string {
 // @Produce			json
 // @Param				request	body			PostBody	true	"album properties"
 // @Success			201			{object}	users.User
-// @Failure			400			{object}	http.HTTPError
-// @Failure			500			{object}	http.HTTPError
+// @Failure			400			{object}	string
+// @Failure			500			{object}	string
 // @Router			/users 	[post]
 func (ctl *Post) Handle(ctx *gin.Context) {
 	body := PostBody{}

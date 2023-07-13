@@ -7,10 +7,11 @@ package db
 
 import (
 	"context"
+	"database/sql"
 )
 
-const createUser = `-- name: CreateUser :exec
-INSERT INTO users (id, email, password) VALUES($1,$2,$3)
+const createUser = `-- name: CreateUser :one
+INSERT INTO users (id, email, password) VALUES($1,$2,$3) RETURNING id, email, password, created_at, updated_at
 `
 
 type CreateUserParams struct {
@@ -19,9 +20,17 @@ type CreateUserParams struct {
 	Password string
 }
 
-func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) error {
-	_, err := q.db.ExecContext(ctx, createUser, arg.ID, arg.Email, arg.Password)
-	return err
+func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
+	row := q.db.QueryRowContext(ctx, createUser, arg.ID, arg.Email, arg.Password)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Email,
+		&i.Password,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
 }
 
 const listUsers = `-- name: ListUsers :many
@@ -55,4 +64,28 @@ func (q *Queries) ListUsers(ctx context.Context) ([]User, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateUser = `-- name: UpdateUser :one
+UPDATE users SET email = coalesce($1, email), password = coalesce($2, password) WHERE id = $3
+RETURNING id, email, password, created_at, updated_at
+`
+
+type UpdateUserParams struct {
+	Email    sql.NullString
+	Password sql.NullString
+	ID       int64
+}
+
+func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error) {
+	row := q.db.QueryRowContext(ctx, updateUser, arg.Email, arg.Password, arg.ID)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Email,
+		&i.Password,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
 }

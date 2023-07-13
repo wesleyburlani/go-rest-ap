@@ -1,12 +1,11 @@
 definitions:
-  http.HTTPError:
+  sql.NullString:
     properties:
-      code:
-        example: 400
-        type: integer
-      message:
-        example: status bad request
+      string:
         type: string
+      valid:
+        description: Valid is true if String is not NULL
+        type: boolean
     type: object
   users.PostBody:
     properties:
@@ -21,11 +20,11 @@ definitions:
   users.User:
     properties:
       email:
-        type: string
+        $ref: '#/definitions/sql.NullString'
       id:
         type: integer
       password:
-        type: string
+        $ref: '#/definitions/sql.NullString'
     type: object
 info:
   contact: {}
@@ -50,11 +49,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/http.HTTPError'
+            type: string
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/http.HTTPError'
+            type: string
       summary: creates a new user
       tags:
       - users

@@ -47,13 +47,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
+                            "type": "string"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
+                            "type": "string"
                         }
                     }
                 }
@@ -61,16 +61,15 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "http.HTTPError": {
+        "sql.NullString": {
             "type": "object",
             "properties": {
-                "code": {
-                    "type": "integer",
-                    "example": 400
+                "string": {
+                    "type": "string"
                 },
-                "message": {
-                    "type": "string",
-                    "example": "status bad request"
+                "valid": {
+                    "description": "Valid is true if String is not NULL",
+                    "type": "boolean"
                 }
             }
         },
@@ -93,13 +92,13 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "email": {
-                    "type": "string"
+                    "$ref": "#/definitions/sql.NullString"
                 },
                 "id": {
                     "type": "integer"
                 },
                 "password": {
-                    "type": "string"
+                    "$ref": "#/definitions/sql.NullString"
                 }
             }
         }
