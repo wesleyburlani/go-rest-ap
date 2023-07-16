@@ -1,34 +1,33 @@
 package users_test
 
 import (
+	"context"
 	"database/sql"
-	"io"
-	"log"
 	"testing"
 
 	"github.com/brianvoe/gofakeit/v6"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/suite"
 	"github.com/wesleyburlani/go-rest-api/internal/config"
-	"github.com/wesleyburlani/go-rest-api/internal/database"
+	"github.com/wesleyburlani/go-rest-api/internal/db"
 	"github.com/wesleyburlani/go-rest-api/internal/users"
 	custom_errors "github.com/wesleyburlani/go-rest-api/pkg/errors"
-	"gorm.io/gorm"
 )
 
 type ServiceTestSuite struct {
 	suite.Suite
+	ctx    context.Context
 	cfg    *config.Config
 	logger *logrus.Logger
-	db     *gorm.DB
+	db     *db.Database
 	svc    *users.Service
 }
 
 func (s *ServiceTestSuite) SetupSuite() {
+	s.ctx = context.Background()
 	s.cfg = config.LoadConfig()
 	s.logger = logrus.New()
-	s.logger.Out = io.Discard
-	s.db = database.Init(s.cfg, s.logger)
+	s.db = db.NewDatabase(s.cfg, s.logger)
 	s.svc = users.NewService(s.db, s.logger)
 }
 
@@ -42,96 +41,206 @@ func TestServiceTestSuite(t *testing.T) {
 
 func (s *ServiceTestSuite) TestCreateUser() {
 	originalUser := users.CreateUserProps{
-		Email:    sql.NullString{String: gofakeit.Email(), Valid: true},
-		Password: sql.NullString{String: generateRandomPassword(), Valid: true},
+		Email:    gofakeit.Email(),
+		Password: generateRandomPassword(),
 	}
 
 	// make sure it wasn't created before
-	s.db.Delete(&users.User{Email: originalUser.Email})
+	s.db.Queries.DeleteUserByEmail(s.ctx, originalUser.Email)
 
 	createdUser, err := s.svc.Create(originalUser)
 
 	if err != nil {
 		s.Fail(err.Error())
 	}
-	defer s.db.Delete(&createdUser)
+	defer s.db.Queries.DeleteUserByEmail(s.ctx, originalUser.Email)
 
 	s.Equal(nil, err)
-	s.NotEmpty(createdUser.ID)
+	s.NotZero(createdUser.ID)
 	s.Equal(originalUser.Email, createdUser.Email)
-	s.Equal("", createdUser.Password.String)
+	s.Equal("", createdUser.Password)
 }
 
 func (s *ServiceTestSuite) TestCreateUser_UserAlreadyExists() {
 	user := users.CreateUserProps{
-		Email:    sql.NullString{String: gofakeit.Email(), Valid: true},
-		Password: sql.NullString{String: generateRandomPassword(), Valid: true},
+		Email:    gofakeit.Email(),
+		Password: generateRandomPassword(),
 	}
 
-	createdUser, err := s.svc.Create(user)
+	_, err := s.svc.Create(user)
 	s.Nil(err)
 	_, err = s.svc.Create(user)
+	s.logger.Info(err)
 	s.True(custom_errors.IsConflictError(err))
-	defer s.db.Delete(&createdUser)
+	defer s.db.Queries.DeleteUserByEmail(s.ctx, user.Email)
 }
 
-func (s *ServiceTestSuite) TestCreateUser_Validation() {
+func (s *ServiceTestSuite) TestGetById() {
 	user := users.CreateUserProps{
-		Email:    sql.NullString{String: "", Valid: false},
-		Password: sql.NullString{String: generateRandomPassword(), Valid: true},
+		Email:    gofakeit.Email(),
+		Password: generateRandomPassword(),
 	}
+
 	createdUser, err := s.svc.Create(user)
-
-	if err == nil {
-		s.db.Delete(&createdUser)
-		log.Fatalf("should have failed %v", createdUser)
-	}
-
-	s.True(custom_errors.IsValidationError(err))
-
-	user.Email = sql.NullString{String: gofakeit.Email(), Valid: true}
-	createdUser, err = s.svc.Create(user)
-
-	if err == nil {
-		s.db.Delete(&createdUser)
-	}
-
-	s.True(custom_errors.IsValidationError(err))
-}
-
-func (s *ServiceTestSuite) TestUpdateUser() {
-	createUser := users.CreateUserProps{
-		Email:    sql.NullString{String: gofakeit.Email(), Valid: true},
-		Password: sql.NullString{String: generateRandomPassword(), Valid: true},
-	}
-
-	updateUser := users.UpdateUserProps{
-		Password: sql.NullString{String: generateRandomPassword(), Valid: true},
-	}
-
-	// make sure it wasn't created before
-	s.db.Delete(&users.User{Email: createUser.Email})
-	s.db.Delete(&users.User{Email: updateUser.Email})
-
-	createdUser, err := s.svc.Create(createUser)
-
 	if err != nil {
 		s.Fail(err.Error())
 	}
-	defer s.db.Delete(&createdUser)
+	defer s.db.Queries.DeleteUserByEmail(s.ctx, user.Email)
 
-	updatedUser, err := s.svc.Update(createdUser.ID, updateUser)
-	s.Nil(err)
-	s.Equal(updateUser.Email, updatedUser.Email)
-	s.Equal("", updatedUser.Password)
+	userById, err := s.svc.GetById(createdUser.ID)
+	if err != nil {
+		s.Fail(err.Error())
+	}
 
-	updatePassword := users.UpdateUserProps{
+	s.Equal(createdUser.Email, userById.Email)
+	s.Equal("", userById.Password)
+}
+
+func (s *ServiceTestSuite) TestGetById_UserDoesNotExist() {
+	_, err := s.svc.GetById(999999999)
+	s.True(custom_errors.IsNotFoundError(err))
+}
+
+func (s *ServiceTestSuite) TestGetByEmail() {
+	user := users.CreateUserProps{
+		Email:    gofakeit.Email(),
+		Password: generateRandomPassword(),
+	}
+
+	createdUser, err := s.svc.Create(user)
+	if err != nil {
+		s.Fail(err.Error())
+	}
+	defer s.db.Queries.DeleteUserByEmail(s.ctx, user.Email)
+
+	userByEmail, err := s.svc.GetByEmail(createdUser.Email)
+	if err != nil {
+		s.Fail(err.Error())
+	}
+
+	s.Equal(createdUser.Email, userByEmail.Email)
+	s.Equal("", userByEmail.Password)
+}
+
+func (s *ServiceTestSuite) TestGetByEmail_UserDoesNotExist() {
+	_, err := s.svc.GetByEmail(gofakeit.Email())
+	s.True(custom_errors.IsNotFoundError(err))
+}
+
+func (s *ServiceTestSuite) TestListUsers() {
+	user1 := users.CreateUserProps{
+		Email:    gofakeit.Email(),
+		Password: generateRandomPassword(),
+	}
+	user2 := users.CreateUserProps{
+		Email:    gofakeit.Email(),
+		Password: generateRandomPassword(),
+	}
+
+	createdUser1, err := s.svc.Create(user1)
+	s.logger.Info(createdUser1)
+	if err != nil {
+		s.Fail(err.Error())
+	}
+	defer s.db.Queries.DeleteUserByEmail(s.ctx, user1.Email)
+	createdUser2, err := s.svc.Create(user2)
+	s.logger.Info(user2)
+	if err != nil {
+		s.Fail(err.Error())
+	}
+	defer s.db.Queries.DeleteUserByEmail(s.ctx, user2.Email)
+
+	users, err := s.svc.List(0, 100)
+	if err != nil {
+		s.Fail(err.Error())
+	}
+
+	s.Equal(2, len(users))
+	s.Equal(createdUser1.Email, users[0].Email)
+	s.Equal(createdUser2.Email, users[1].Email)
+}
+
+func (s *ServiceTestSuite) TestListUsers_Empty() {
+	users, err := s.svc.List(0, 100)
+	if err != nil {
+		s.Fail(err.Error())
+	}
+
+	s.Equal(0, len(users))
+}
+
+func (s *ServiceTestSuite) TestUpdateUser() {
+	user := users.CreateUserProps{
+		Email:    gofakeit.Email(),
+		Password: generateRandomPassword(),
+	}
+
+	createdUser, err := s.svc.Create(user)
+	if err != nil {
+		s.Fail(err.Error())
+	}
+	defer s.db.Queries.DeleteUserByEmail(s.ctx, user.Email)
+
+	updateUser := users.UpdateUserProps{
 		Email:    sql.NullString{String: gofakeit.Email(), Valid: true},
 		Password: sql.NullString{String: generateRandomPassword(), Valid: true},
 	}
-	updatedPassword, err := s.svc.Update(createdUser.ID, updatePassword)
-	s.Nil(err)
-	s.Equal(updateUser.Email, updatedPassword.Email)
-	s.Equal("", updatedPassword.Password)
-	defer s.db.Delete(&updatedUser)
+
+	updatedUser, err := s.svc.Update(createdUser.ID, updateUser)
+	if err != nil {
+		s.Fail(err.Error())
+	}
+
+	s.Equal(updateUser.Email.String, updatedUser.Email)
+	s.Equal("", updatedUser.Password)
+}
+
+func (s *ServiceTestSuite) TestUpdateUser_UserDoesNotExist() {
+	updateUser := users.UpdateUserProps{
+		Email:    sql.NullString{String: gofakeit.Email(), Valid: true},
+		Password: sql.NullString{String: generateRandomPassword(), Valid: true},
+	}
+
+	_, err := s.svc.Update(999999999, updateUser)
+	s.True(custom_errors.IsNotFoundError(err))
+}
+
+func (s *ServiceTestSuite) TestUpdateUser_UpdateEmail() {
+	user := users.CreateUserProps{
+		Email:    gofakeit.Email(),
+		Password: generateRandomPassword(),
+	}
+
+	createdUser, err := s.svc.Create(user)
+	if err != nil {
+		s.Fail(err.Error())
+	}
+
+	createdUserWithPwd, err := s.db.Queries.GetUserById(s.ctx, createdUser.ID)
+	if err != nil {
+		s.Fail(err.Error())
+	}
+
+	defer s.db.Queries.DeleteUserByEmail(s.ctx, user.Email)
+
+	updateUser := users.UpdateUserProps{
+		Email:    sql.NullString{String: gofakeit.Email(), Valid: true},
+		Password: sql.NullString{String: "", Valid: false},
+	}
+
+	updatedUser, err := s.svc.Update(createdUser.ID, updateUser)
+	if err != nil {
+		s.Fail(err.Error())
+	}
+
+	updatedUserWithPwd, err := s.db.Queries.GetUserById(s.ctx, createdUser.ID)
+	if err != nil {
+		s.Fail(err.Error())
+	}
+
+	defer s.db.Queries.DeleteUserByEmail(s.ctx, updateUser.Email.String)
+
+	s.Equal(updateUser.Email.String, updatedUser.Email)
+	s.Equal("", updatedUser.Password)
+	s.Equal(updatedUserWithPwd.Password, createdUserWithPwd.Password)
 }

@@ -1,7 +1,6 @@
 package users
 
 import (
-	"database/sql"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -61,8 +60,8 @@ func (ctl *Post) Handle(ctx *gin.Context) {
 		svc.
 		WithContext(ctx.Request.Context()).
 		Create(users.CreateUserProps{
-			Email:    sql.NullString{String: body.Email, Valid: body.Email != ""},
-			Password: sql.NullString{String: body.Password, Valid: body.Password != ""},
+			Email:    body.Email,
+			Password: body.Password,
 		})
 
 	if err != nil {

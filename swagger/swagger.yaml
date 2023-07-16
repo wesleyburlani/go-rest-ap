@@ -1,12 +1,4 @@
 definitions:
-  sql.NullString:
-    properties:
-      string:
-        type: string
-      valid:
-        description: Valid is true if String is not NULL
-        type: boolean
-    type: object
   users.PostBody:
     properties:
       email:
@@ -20,11 +12,11 @@ definitions:
   users.User:
     properties:
       email:
-        $ref: '#/definitions/sql.NullString'
+        type: string
       id:
         type: integer
       password:
-        $ref: '#/definitions/sql.NullString'
+        type: string
     type: object
 info:
   contact: {}

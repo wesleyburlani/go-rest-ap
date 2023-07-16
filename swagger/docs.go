@@ -61,18 +61,6 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "sql.NullString": {
-            "type": "object",
-            "properties": {
-                "string": {
-                    "type": "string"
-                },
-                "valid": {
-                    "description": "Valid is true if String is not NULL",
-                    "type": "boolean"
-                }
-            }
-        },
         "users.PostBody": {
             "type": "object",
             "required": [
@@ -92,13 +80,13 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "email": {
-                    "$ref": "#/definitions/sql.NullString"
+                    "type": "string"
                 },
                 "id": {
                     "type": "integer"
                 },
                 "password": {
-                    "$ref": "#/definitions/sql.NullString"
+                    "type": "string"
                 }
             }
         }
