@@ -38,6 +38,9 @@ func BuildContainer(cfg *config.Config) (*di.Container, error) {
 		di.Provide(http.NewOtelMiddleware, di.As(new(http.Middleware))),
 
 		di.Provide(users_controllers.NewPost, di.As(new(http.Controller))),
+		di.Provide(users_controllers.NewPut, di.As(new(http.Controller))),
+		di.Provide(users_controllers.NewGet, di.As(new(http.Controller))),
+		di.Provide(users_controllers.NewList, di.As(new(http.Controller))),
 
 		di.Provide(http_server.NewServer, di.Tags{"type": "http"}),
 	)

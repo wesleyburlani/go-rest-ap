@@ -11,7 +11,8 @@ import (
 )
 
 const createUser = `-- name: CreateUser :one
-INSERT INTO users (email, password) VALUES($1,$2) RETURNING id, email, password, created_at, updated_at
+INSERT INTO users (email, password)
+VALUES($1,$2) RETURNING id, email, password, created_at, updated_at
 `
 
 type CreateUserParams struct {
@@ -33,7 +34,9 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 }
 
 const deleteUserByEmail = `-- name: DeleteUserByEmail :one
-DELETE FROM users WHERE email = $1 RETURNING id, email, password, created_at, updated_at
+DELETE FROM users
+WHERE email = $1
+RETURNING id, email, password, created_at, updated_at
 `
 
 func (q *Queries) DeleteUserByEmail(ctx context.Context, email string) (User, error) {
@@ -50,7 +53,9 @@ func (q *Queries) DeleteUserByEmail(ctx context.Context, email string) (User, er
 }
 
 const deleteUserById = `-- name: DeleteUserById :one
-DELETE FROM users WHERE id = $1 RETURNING id, email, password, created_at, updated_at
+DELETE FROM users
+WHERE id = $1
+RETURNING id, email, password, created_at, updated_at
 `
 
 func (q *Queries) DeleteUserById(ctx context.Context, id int64) (User, error) {
@@ -67,7 +72,8 @@ func (q *Queries) DeleteUserById(ctx context.Context, id int64) (User, error) {
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT id, email, password, created_at, updated_at FROM users WHERE email = $1
+SELECT id, email, password, created_at, updated_at FROM users
+WHERE email = $1
 `
 
 func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error) {
@@ -84,7 +90,8 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 }
 
 const getUserById = `-- name: GetUserById :one
-SELECT id, email, password, created_at, updated_at FROM users WHERE id = $1
+SELECT id, email, password, created_at, updated_at FROM users
+WHERE id = $1
 `
 
 func (q *Queries) GetUserById(ctx context.Context, id int64) (User, error) {
@@ -101,7 +108,9 @@ func (q *Queries) GetUserById(ctx context.Context, id int64) (User, error) {
 }
 
 const listUsers = `-- name: ListUsers :many
-SELECT id, email, password, created_at, updated_at FROM users ORDER BY id LIMIT $1 OFFSET $2
+SELECT id, email, password, created_at, updated_at FROM users
+ORDER BY id
+LIMIT $1 OFFSET $2
 `
 
 type ListUsersParams struct {
@@ -139,7 +148,10 @@ func (q *Queries) ListUsers(ctx context.Context, arg ListUsersParams) ([]User, e
 }
 
 const updateUser = `-- name: UpdateUser :one
-UPDATE users SET email = coalesce($1, email), password = coalesce($2, password) WHERE id = $3
+UPDATE users SET
+  email = coalesce($1, email),
+  password = coalesce($2, password)
+WHERE id = $3
 RETURNING id, email, password, created_at, updated_at
 `
 

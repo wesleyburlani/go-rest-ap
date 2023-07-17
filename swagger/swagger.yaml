@@ -9,6 +9,13 @@ definitions:
     - email
     - password
     type: object
+  users.PutBody:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
   users.User:
     properties:
       email:
@@ -22,10 +29,28 @@ info:
   contact: {}
 paths:
   /users:
+    get:
+      description: lists existing users
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/users.User'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: lists existing users
+      tags:
+      - users
     post:
       description: creates a new user
       parameters:
-      - description: album properties
+      - description: create user properties
         in: body
         name: request
         required: true
@@ -47,6 +72,65 @@ paths:
           schema:
             type: string
       summary: creates a new user
+      tags:
+      - users
+  /users/{id}:
+    get:
+      description: returns an existing user
+      parameters:
+      - description: user id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/users.User'
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: returns an existing user
+      tags:
+      - users
+    put:
+      description: updates an existing user
+      parameters:
+      - description: user id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: update user properties
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/users.PutBody'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/users.User'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: updates an existing user
       tags:
       - users
 swagger: "2.0"

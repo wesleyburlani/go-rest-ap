@@ -2,7 +2,6 @@ package http
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/sirupsen/logrus"
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"github.com/wesleyburlani/go-rest-api/internal/config"
@@ -22,20 +21,16 @@ func HandleError(ctx *gin.Context, err error) {
 	if err == nil {
 		return
 	}
-
-	if ok, e := custom_errors.IsConflictError(err); ok {
-		abortWithStatusJson(ctx, e.StatusCode(), e.Message)
+	if instance, ok := err.(custom_errors.HttpError); ok {
+		abortWithStatusJson(ctx, instance.StatusCode(), instance.Error())
+		return
 	}
-
-	if ok, e := custom_errors.IsUnknownError(err); ok {
-		abortWithStatusJson(ctx, e.StatusCode(), e.Message)
-	}
+	abortWithStatusJson(ctx, 500, err.Error())
 }
 
 func NewServer(
 	middlewares []http_server.Middleware,
 	controllers []http_server.Controller,
-	logger *logrus.Logger,
 	cfg *config.Config,
 ) *gin.Engine {
 

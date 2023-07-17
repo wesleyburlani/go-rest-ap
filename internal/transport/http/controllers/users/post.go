@@ -40,7 +40,7 @@ func (ctl *Post) RelativePath() string {
 // @Description	creates a new user
 // @Tags				users
 // @Produce			json
-// @Param				request	body			PostBody	true	"album properties"
+// @Param				request	body			PostBody		true	"create user properties"
 // @Success			201			{object}	users.User
 // @Failure			400			{object}	string
 // @Failure			500			{object}	string
