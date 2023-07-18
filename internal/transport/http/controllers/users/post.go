@@ -7,6 +7,7 @@ import (
 	"github.com/sirupsen/logrus"
 	http_server "github.com/wesleyburlani/go-rest-api/internal/transport/http"
 	"github.com/wesleyburlani/go-rest-api/internal/users"
+	http_pkg "github.com/wesleyburlani/go-rest-api/pkg/http"
 )
 
 type Post struct {
@@ -16,7 +17,7 @@ type Post struct {
 
 type PostBody struct {
 	Email    string `json:"email" binding:"required"`
-	Password string `json:"password,omitempty" binding:"required"`
+	Password string `json:"password" binding:"required"`
 }
 
 func NewPost(logger *logrus.Logger, svc *users.Service) *Post {
@@ -32,6 +33,10 @@ func (ctl *Post) Method() string {
 
 func (ctl *Post) RelativePath() string {
 	return "/users"
+}
+
+func (ctl *Post) Middlewares() []http_pkg.Middleware {
+	return []http_pkg.Middleware{}
 }
 
 // PostUser			godoc

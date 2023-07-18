@@ -1,4 +1,18 @@
 definitions:
+  github_com_wesleyburlani_go-rest-api_internal_users.User:
+    properties:
+      email:
+        type: string
+      id:
+        type: integer
+      password:
+        type: string
+    type: object
+  github_com_wesleyburlani_go-rest-api_pkg_crypto.JwtToken:
+    properties:
+      token:
+        type: string
+    type: object
   users.PostBody:
     properties:
       email:
@@ -16,18 +30,37 @@ definitions:
       password:
         type: string
     type: object
-  users.User:
-    properties:
-      email:
-        type: string
-      id:
-        type: integer
-      password:
-        type: string
-    type: object
 info:
   contact: {}
 paths:
+  /auth/login:
+    post:
+      description: generates a jwt token for a user
+      parameters:
+      - description: login user properties
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/users.PostBody'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_wesleyburlani_go-rest-api_pkg_crypto.JwtToken'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: generates a jwt token for a user
+      tags:
+      - auth
   /users:
     get:
       description: lists existing users
@@ -38,7 +71,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/users.User'
+              $ref: '#/definitions/github_com_wesleyburlani_go-rest-api_internal_users.User'
             type: array
         "500":
           description: Internal Server Error
@@ -62,7 +95,7 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/users.User'
+            $ref: '#/definitions/github_com_wesleyburlani_go-rest-api_internal_users.User'
         "400":
           description: Bad Request
           schema:
@@ -89,7 +122,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/users.User'
+            $ref: '#/definitions/github_com_wesleyburlani_go-rest-api_internal_users.User'
         "404":
           description: Not Found
           schema:
@@ -121,7 +154,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/users.User'
+            $ref: '#/definitions/github_com_wesleyburlani_go-rest-api_internal_users.User'
         "400":
           description: Bad Request
           schema:
@@ -131,6 +164,27 @@ paths:
           schema:
             type: string
       summary: updates an existing user
+      tags:
+      - users
+  /users/me:
+    get:
+      description: returns the current authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_wesleyburlani_go-rest-api_internal_users.User'
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: returns the current authenticated user
       tags:
       - users
 swagger: "2.0"

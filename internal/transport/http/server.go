@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
+	"github.com/thoas/go-funk"
 	"github.com/wesleyburlani/go-rest-api/internal/config"
 	custom_errors "github.com/wesleyburlani/go-rest-api/pkg/errors"
 	http_server "github.com/wesleyburlani/go-rest-api/pkg/http"
@@ -49,7 +50,13 @@ func NewServer(
 
 	v1 := router.Group(basePath)
 	for _, controller := range controllers {
-		v1.Handle(controller.Method(), controller.RelativePath(), controller.Handle)
+		middlewares := funk.Map(
+			controller.Middlewares(),
+			func(middleware http_server.Middleware) gin.HandlerFunc {
+				return middleware.Handle
+			}).([]gin.HandlerFunc)
+		handlers := append(middlewares, controller.Handle)
+		v1.Handle(controller.Method(), controller.RelativePath(), handlers...)
 	}
 
 	docs.SwaggerInfo.Title = cfg.ServiceName

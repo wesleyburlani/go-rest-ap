@@ -7,6 +7,7 @@ import (
 	"github.com/sirupsen/logrus"
 	http_server "github.com/wesleyburlani/go-rest-api/internal/transport/http"
 	"github.com/wesleyburlani/go-rest-api/internal/users"
+	http_pkg "github.com/wesleyburlani/go-rest-api/pkg/http"
 )
 
 type List struct {
@@ -32,6 +33,10 @@ func (ctl *List) Method() string {
 
 func (ctl *List) RelativePath() string {
 	return "/users"
+}
+
+func (ctl *List) Middlewares() []http_pkg.Middleware {
+	return []http_pkg.Middleware{}
 }
 
 // ListUser			godoc

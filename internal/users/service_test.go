@@ -11,6 +11,7 @@ import (
 	"github.com/wesleyburlani/go-rest-api/internal/config"
 	"github.com/wesleyburlani/go-rest-api/internal/db"
 	"github.com/wesleyburlani/go-rest-api/internal/users"
+	"github.com/wesleyburlani/go-rest-api/pkg/crypto"
 	custom_errors "github.com/wesleyburlani/go-rest-api/pkg/errors"
 )
 
@@ -20,6 +21,7 @@ type ServiceTestSuite struct {
 	cfg    *config.Config
 	logger *logrus.Logger
 	db     *db.Database
+	auth   *crypto.JwtAuth
 	svc    *users.Service
 }
 
@@ -28,7 +30,8 @@ func (s *ServiceTestSuite) SetupSuite() {
 	s.cfg = config.LoadConfig()
 	s.logger = logrus.New()
 	s.db = db.NewDatabase(s.cfg, s.logger)
-	s.svc = users.NewService(s.db, s.logger)
+	s.auth = crypto.NewJwtAuth([]byte(s.cfg.JwtSecretKey))
+	s.svc = users.NewService(s.db, s.logger, s.auth)
 }
 
 func generateRandomPassword() string {

@@ -20,13 +20,17 @@ type JwtClaims struct {
 	jwt.RegisteredClaims
 }
 
+type JwtToken struct {
+	Token string `json:"token"`
+}
+
 func NewJwtAuth(secretKey []byte) *JwtAuth {
 	return &JwtAuth{
 		secretKey: secretKey,
 	}
 }
 
-func (instance *JwtAuth) GenerateToken(props JwtProps) (string, error) {
+func (instance *JwtAuth) GenerateToken(props JwtProps) (*JwtToken, error) {
 	expirationTime := time.Now().Add(5 * time.Minute)
 	claims := &JwtClaims{
 		Username: props.Username,
@@ -35,7 +39,11 @@ func (instance *JwtAuth) GenerateToken(props JwtProps) (string, error) {
 		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString(instance.secretKey)
+
+	signedToken, err := token.SignedString(instance.secretKey)
+	return &JwtToken{
+		Token: signedToken,
+	}, err
 }
 
 func (instance *JwtAuth) DecodeToken(token string) (*JwtProps, error) {

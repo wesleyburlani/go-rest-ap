@@ -7,6 +7,7 @@ import (
 	"github.com/sirupsen/logrus"
 	http_server "github.com/wesleyburlani/go-rest-api/internal/transport/http"
 	"github.com/wesleyburlani/go-rest-api/internal/users"
+	http_pkg "github.com/wesleyburlani/go-rest-api/pkg/http"
 )
 
 type Get struct {
@@ -31,6 +32,10 @@ func (ctl *Get) Method() string {
 
 func (ctl *Get) RelativePath() string {
 	return "/users/:id"
+}
+
+func (ctl *Get) Middlewares() []http_pkg.Middleware {
+	return []http_pkg.Middleware{}
 }
 
 // GetUser			godoc

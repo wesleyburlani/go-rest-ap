@@ -29,6 +29,7 @@ type Config struct {
 	DatabaseUrl   string `env:"DATABASE_URL"`
 	WebSocketHost string `env:"WEBSOCKET_HOST" envDefault:"localhost"`
 	WebSocketPort int    `env:"WEBSOCKET_PORT" envDefault:"1234"`
+	JwtSecretKey  string `env:"JWT_SECRET_KEY"`
 }
 
 func LoadConfig() *Config {

@@ -2,6 +2,7 @@ package users
 
 import (
 	"context"
+	"database/sql"
 
 	"github.com/sirupsen/logrus"
 	"github.com/wesleyburlani/go-rest-api/internal/db"
@@ -22,13 +23,15 @@ type Service struct {
 	db     *db.Database
 	logger *logrus.Logger
 	ctx    context.Context
+	auth   *crypto.JwtAuth
 }
 
-func NewService(db *db.Database, logger *logrus.Logger) *Service {
+func NewService(db *db.Database, logger *logrus.Logger, auth *crypto.JwtAuth) *Service {
 	return &Service{
 		db:     db,
 		logger: logger,
 		ctx:    context.Background(),
+		auth:   auth,
 	}
 }
 
@@ -128,10 +131,19 @@ func (s *Service) Update(id int64, user UpdateUserProps) (User, error) {
 		return User{}, custom_errors.NewNotFoundError("user not found")
 	}
 
+	encryptPassword := sql.NullString{String: "", Valid: false}
+	if user.Password.Valid {
+		p, err := crypto.GenerateHashFromPassword(user.Password.String)
+		if err != nil {
+			return User{}, custom_errors.NewUnknownError(err.Error())
+		}
+		encryptPassword = sql.NullString{String: p, Valid: true}
+	}
+
 	updatedUser, err := s.db.Queries.UpdateUser(s.ctx, db.UpdateUserParams{
 		ID:       id,
 		Email:    user.Email,
-		Password: user.Password,
+		Password: encryptPassword,
 	})
 
 	if err != nil {

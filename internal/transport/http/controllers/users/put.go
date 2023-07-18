@@ -8,6 +8,7 @@ import (
 	"github.com/sirupsen/logrus"
 	http_server "github.com/wesleyburlani/go-rest-api/internal/transport/http"
 	"github.com/wesleyburlani/go-rest-api/internal/users"
+	http_pkg "github.com/wesleyburlani/go-rest-api/pkg/http"
 	null "gopkg.in/guregu/null.v4"
 )
 
@@ -38,6 +39,10 @@ func (ctl *Put) Method() string {
 
 func (ctl *Put) RelativePath() string {
 	return "/users/:id"
+}
+
+func (ctl *Put) Middlewares() []http_pkg.Middleware {
+	return []http_pkg.Middleware{}
 }
 
 // PutUser			godoc
