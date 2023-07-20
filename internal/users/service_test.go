@@ -78,7 +78,7 @@ func (s *ServiceTestSuite) TestCreateUser_UserAlreadyExists() {
 	defer s.db.Queries.DeleteUserByEmail(s.ctx, user.Email)
 }
 
-func (s *ServiceTestSuite) TestGetById() {
+func (s *ServiceTestSuite) TestGet() {
 	user := users.CreateUserProps{
 		Email:    gofakeit.Email(),
 		Password: generateRandomPassword(),
@@ -90,7 +90,7 @@ func (s *ServiceTestSuite) TestGetById() {
 	}
 	defer s.db.Queries.DeleteUserByEmail(s.ctx, user.Email)
 
-	userById, err := s.svc.GetById(createdUser.ID)
+	userById, err := s.svc.Get(createdUser.ID)
 	if err != nil {
 		s.Fail(err.Error())
 	}
@@ -99,8 +99,8 @@ func (s *ServiceTestSuite) TestGetById() {
 	s.Equal("", userById.Password)
 }
 
-func (s *ServiceTestSuite) TestGetById_UserDoesNotExist() {
-	_, err := s.svc.GetById(999999999)
+func (s *ServiceTestSuite) TestGet_UserDoesNotExist() {
+	_, err := s.svc.Get(999999999)
 	s.True(custom_errors.IsNotFoundError(err))
 }
 
@@ -246,4 +246,29 @@ func (s *ServiceTestSuite) TestUpdateUser_UpdateEmail() {
 	s.Equal(updateUser.Email.String, updatedUser.Email)
 	s.Equal("", updatedUser.Password)
 	s.Equal(updatedUserWithPwd.Password, createdUserWithPwd.Password)
+}
+
+func (s *ServiceTestSuite) TestDelete() {
+	user := users.CreateUserProps{
+		Email:    gofakeit.Email(),
+		Password: generateRandomPassword(),
+	}
+
+	createdUser, err := s.svc.Create(user)
+	if err != nil {
+		s.Fail(err.Error())
+	}
+
+	err = s.svc.Delete(createdUser.ID)
+	if err != nil {
+		s.Fail(err.Error())
+	}
+
+	_, err = s.svc.Get(createdUser.ID)
+	s.True(custom_errors.IsNotFoundError(err))
+}
+
+func (s *ServiceTestSuite) TestDelete_UserDoesNotExist() {
+	err := s.svc.Delete(999999999)
+	s.True(custom_errors.IsNotFoundError(err))
 }

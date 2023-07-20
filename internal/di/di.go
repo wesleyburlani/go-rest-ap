@@ -9,6 +9,7 @@ import (
 	http_server "github.com/wesleyburlani/go-rest-api/internal/transport/http"
 	auth_controllers "github.com/wesleyburlani/go-rest-api/internal/transport/http/controllers/auth"
 	users_controllers "github.com/wesleyburlani/go-rest-api/internal/transport/http/controllers/users"
+	"github.com/wesleyburlani/go-rest-api/internal/transport/http/middlewares"
 	users_service "github.com/wesleyburlani/go-rest-api/internal/users"
 	"github.com/wesleyburlani/go-rest-api/pkg/crypto"
 	"github.com/wesleyburlani/go-rest-api/pkg/http"
@@ -39,18 +40,22 @@ func BuildContainer(cfg *config.Config) (*di.Container, error) {
 
 	httpServer := di.Options(
 		// otel middleware must be the first one to be imported
-		di.Provide(func() *http.OtelMiddlewareConfig {
-			return &http.OtelMiddlewareConfig{
+		di.Provide(func() *middlewares.OtelMiddlewareConfig {
+			return &middlewares.OtelMiddlewareConfig{
 				ServiceName: cfg.ServiceName,
 			}
 		}),
-		di.Provide(http.NewOtelMiddleware, di.As(new(http.Middleware))),
 
+		// middlewares
+		di.Provide(middlewares.NewOtelMiddleware, di.As(new(http.Middleware))),
+
+		// controllers
 		di.Provide(auth_controllers.NewLogin, di.As(new(http.Controller))),
 
 		di.Provide(users_controllers.NewPost, di.As(new(http.Controller))),
 		di.Provide(users_controllers.NewPut, di.As(new(http.Controller))),
 		di.Provide(users_controllers.NewGet, di.As(new(http.Controller))),
+		di.Provide(users_controllers.NewDelete, di.As(new(http.Controller))),
 		di.Provide(users_controllers.NewList, di.As(new(http.Controller))),
 		di.Provide(users_controllers.NewMe, di.As(new(http.Controller))),
 
@@ -61,8 +66,8 @@ func BuildContainer(cfg *config.Config) (*di.Container, error) {
 
 	services := di.Options(
 		di.Provide(db.NewDatabase),
-		di.Provide(users_service.NewService),
-		di.Provide(auth_service.NewService),
+		di.Provide(users_service.NewService, di.As(new(users_service.IService))),
+		di.Provide(auth_service.NewService, di.As(new(auth_service.IService))),
 	)
 
 	container, err := di.New(

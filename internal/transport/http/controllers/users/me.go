@@ -3,22 +3,28 @@ package users
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
+	"github.com/wesleyburlani/go-rest-api/internal/auth"
+	"github.com/wesleyburlani/go-rest-api/internal/transport/http/middlewares"
+	"github.com/wesleyburlani/go-rest-api/internal/transport/http/utils"
 	"github.com/wesleyburlani/go-rest-api/internal/users"
-	"github.com/wesleyburlani/go-rest-api/pkg/crypto"
 	http_pkg "github.com/wesleyburlani/go-rest-api/pkg/http"
 )
 
 type Me struct {
-	logger *logrus.Logger
-	svc    *users.Service
-	auth   *crypto.JwtAuth
+	logger   *logrus.Logger
+	usersSvc users.IService
+	authSvc  auth.IService
 }
 
-func NewMe(logger *logrus.Logger, svc *users.Service, auth *crypto.JwtAuth) *Me {
+func NewMe(
+	logger *logrus.Logger,
+	usersSvc users.IService,
+	authSvc auth.IService,
+) *Me {
 	return &Me{
-		logger: logger,
-		svc:    svc,
-		auth:   auth,
+		logger:   logger,
+		usersSvc: usersSvc,
+		authSvc:  authSvc,
 	}
 }
 
@@ -32,8 +38,7 @@ func (ctl *Me) RelativePath() string {
 
 func (ctl *Me) Middlewares() []http_pkg.Middleware {
 	return []http_pkg.Middleware{
-		http_pkg.NewJwtMiddleware(ctl.auth),
-		http_pkg.NewGetCurrentUserMiddleware(ctl.svc),
+		middlewares.NewAuthenticationMiddleware(ctl.authSvc),
 	}
 }
 
@@ -48,6 +53,6 @@ func (ctl *Me) Middlewares() []http_pkg.Middleware {
 // @Failure			500						{object}	string
 // @Router			/users/me 		[get]
 func (ctl *Me) Handle(ctx *gin.Context) {
-	user := ctx.MustGet("user").(users.User)
+	user := utils.GetUserFromContext(ctx)
 	ctx.JSON(200, user)
 }

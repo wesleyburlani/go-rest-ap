@@ -13,10 +13,11 @@ import (
 type IService interface {
 	WithContext(ctx context.Context) IService
 	Create(user CreateUserProps) (User, error)
-	GetById(id uint) (User, error)
+	Get(id int64) (User, error)
 	GetByEmail(email string) (User, error)
 	List(page int32, limit int32) ([]User, error)
-	Update(id uint, user UpdateUserProps) (User, error)
+	Update(id int64, user UpdateUserProps) (User, error)
+	Delete(id int64) error
 }
 
 type Service struct {
@@ -35,7 +36,7 @@ func NewService(db *db.Database, logger *logrus.Logger, auth *crypto.JwtAuth) *S
 	}
 }
 
-func (s *Service) WithContext(ctx context.Context) *Service {
+func (s *Service) WithContext(ctx context.Context) IService {
 	s.ctx = ctx
 	return s
 }
@@ -69,7 +70,7 @@ func (s *Service) Create(user CreateUserProps) (User, error) {
 	}, nil
 }
 
-func (s *Service) GetById(id int64) (User, error) {
+func (s *Service) Get(id int64) (User, error) {
 	user, err := s.db.Queries.GetUserById(s.ctx, id)
 
 	if err != nil {
@@ -157,4 +158,16 @@ func (s *Service) Update(id int64, user UpdateUserProps) (User, error) {
 		CreatedAt: updatedUser.CreatedAt,
 		UpdatedAt: updatedUser.UpdatedAt,
 	}, nil
+}
+
+func (s *Service) Delete(id int64) error {
+	if _, err := s.db.Queries.GetUserById(s.ctx, id); err != nil {
+		return custom_errors.NewNotFoundError("user not found")
+	}
+
+	if _, err := s.db.Queries.DeleteUserById(s.ctx, id); err != nil {
+		return custom_errors.NewUnknownError(err.Error())
+	}
+
+	return nil
 }

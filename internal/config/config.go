@@ -30,6 +30,7 @@ type Config struct {
 	WebSocketHost string `env:"WEBSOCKET_HOST" envDefault:"localhost"`
 	WebSocketPort int    `env:"WEBSOCKET_PORT" envDefault:"1234"`
 	JwtSecretKey  string `env:"JWT_SECRET_KEY"`
+	XApiKey       string `env:"X_API_KEY"`
 }
 
 func LoadConfig() *Config {

@@ -10,47 +10,47 @@ import (
 	http_pkg "github.com/wesleyburlani/go-rest-api/pkg/http"
 )
 
-type Get struct {
+type Delete struct {
 	logger *logrus.Logger
 	svc    *users.Service
 }
 
-type GetUri struct {
+type DeleteUri struct {
 	ID int64 `uri:"id" binding:"required"`
 }
 
-func NewGet(logger *logrus.Logger, svc *users.Service) *Get {
-	return &Get{
+func NewDelete(logger *logrus.Logger, svc *users.Service) *Delete {
+	return &Delete{
 		logger: logger,
 		svc:    svc,
 	}
 }
 
-func (ctl *Get) Method() string {
-	return "GET"
+func (ctl *Delete) Method() string {
+	return "DELETE"
 }
 
-func (ctl *Get) RelativePath() string {
+func (ctl *Delete) RelativePath() string {
 	return "/users/:id"
 }
 
-func (ctl *Get) Middlewares() []http_pkg.Middleware {
+func (ctl *Delete) Middlewares() []http_pkg.Middleware {
 	return []http_pkg.Middleware{}
 }
 
-// GetUser			godoc
-// @Summary			returns an existing user
+// DeleteUser		godoc
+// @Summary			deletes an existing user
 // @Schemes			http https
-// @Description	returns an existing user
+// @Description	deletes an existing user
 // @Tags				users
 // @Produce			json
 // @Param				id						path			int64				true	"user id"
-// @Success			200						{object}	users.User
+// @Success			200						{object}	string
 // @Failure			404						{object}	string
 // @Failure			500						{object}	string
-// @Router			/users/{id} 	[get]
-func (ctl *Get) Handle(ctx *gin.Context) {
-	uri := GetUri{}
+// @Router			/users/{id} 	[Delete]
+func (ctl *Delete) Handle(ctx *gin.Context) {
+	uri := DeleteUri{}
 
 	if err := ctx.BindUri(&uri); err != nil {
 		err := ctx.AbortWithError(http.StatusBadRequest, err)
@@ -60,14 +60,14 @@ func (ctl *Get) Handle(ctx *gin.Context) {
 		return
 	}
 
-	user, err := ctl.
+	err := ctl.
 		svc.
 		WithContext(ctx.Request.Context()).
-		Get(uri.ID)
+		Delete(uri.ID)
 
 	if err != nil {
 		http_server.HandleError(ctx, err)
 	} else {
-		ctx.JSON(http.StatusOK, user)
+		ctx.JSON(http.StatusOK, "")
 	}
 }

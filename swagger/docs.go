@@ -41,7 +41,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_wesleyburlani_go-rest-api_pkg_crypto.JwtToken"
+                            "$ref": "#/definitions/crypto.JwtToken"
                         }
                     },
                     "400": {
@@ -75,7 +75,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/github_com_wesleyburlani_go-rest-api_internal_users.User"
+                                "$ref": "#/definitions/users.User"
                             }
                         }
                     },
@@ -111,7 +111,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/github_com_wesleyburlani_go-rest-api_internal_users.User"
+                            "$ref": "#/definitions/users.User"
                         }
                     },
                     "400": {
@@ -143,7 +143,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_wesleyburlani_go-rest-api_internal_users.User"
+                            "$ref": "#/definitions/users.User"
                         }
                     },
                     "404": {
@@ -184,7 +184,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_wesleyburlani_go-rest-api_internal_users.User"
+                            "$ref": "#/definitions/users.User"
                         }
                     },
                     "404": {
@@ -232,7 +232,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_wesleyburlani_go-rest-api_internal_users.User"
+                            "$ref": "#/definitions/users.User"
                         }
                     },
                     "400": {
@@ -248,25 +248,50 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "delete": {
+                "description": "deletes an existing user",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "deletes an existing user",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "user id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
             }
         }
     },
     "definitions": {
-        "github_com_wesleyburlani_go-rest-api_internal_users.User": {
-            "type": "object",
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "password": {
-                    "type": "string"
-                }
-            }
-        },
-        "github_com_wesleyburlani_go-rest-api_pkg_crypto.JwtToken": {
+        "crypto.JwtToken": {
             "type": "object",
             "properties": {
                 "token": {
@@ -294,6 +319,20 @@ const docTemplate = `{
             "properties": {
                 "email": {
                     "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "users.User": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
                 },
                 "password": {
                     "type": "string"
