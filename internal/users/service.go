@@ -2,12 +2,13 @@ package users
 
 import (
 	"context"
-	"database/sql"
 
 	"github.com/sirupsen/logrus"
 	"github.com/wesleyburlani/go-rest-api/internal/db"
 	"github.com/wesleyburlani/go-rest-api/pkg/crypto"
 	custom_errors "github.com/wesleyburlani/go-rest-api/pkg/errors"
+	"github.com/wesleyburlani/go-rest-api/pkg/validation"
+	"gopkg.in/guregu/null.v4"
 )
 
 type IService interface {
@@ -21,18 +22,25 @@ type IService interface {
 }
 
 type Service struct {
-	db     *db.Database
-	logger *logrus.Logger
-	ctx    context.Context
-	auth   *crypto.JwtAuth
+	db        *db.Database
+	logger    *logrus.Logger
+	ctx       context.Context
+	auth      *crypto.JwtAuth
+	validator *validation.Validator
 }
 
-func NewService(db *db.Database, logger *logrus.Logger, auth *crypto.JwtAuth) *Service {
+func NewService(
+	db *db.Database,
+	logger *logrus.Logger,
+	auth *crypto.JwtAuth,
+	validator *validation.Validator,
+) *Service {
 	return &Service{
-		db:     db,
-		logger: logger,
-		ctx:    context.Background(),
-		auth:   auth,
+		db:        db,
+		logger:    logger,
+		ctx:       context.Background(),
+		auth:      auth,
+		validator: validator,
 	}
 }
 
@@ -42,9 +50,13 @@ func (s *Service) WithContext(ctx context.Context) IService {
 }
 
 func (s *Service) Create(user CreateUserProps) (User, error) {
-	encryptPassword, err := crypto.GenerateHashFromPassword(user.Password)
+	if err := s.validator.Validate(user); err != nil {
+		return User{}, custom_errors.NewValidationError(err.Error())
+	}
 
-	if err != nil {
+	if encryptPassword, err := crypto.GenerateHashFromPassword(user.Password); err == nil {
+		user.Password = encryptPassword
+	} else {
 		return User{}, custom_errors.NewUnknownError(err.Error())
 	}
 
@@ -52,22 +64,13 @@ func (s *Service) Create(user CreateUserProps) (User, error) {
 		return User{}, custom_errors.NewConflictError("user already exists")
 	}
 
-	createdUser, err := s.db.Queries.CreateUser(s.ctx, db.CreateUserParams{
-		Email:    user.Email,
-		Password: encryptPassword,
-	})
+	createdUser, err := s.db.Queries.CreateUser(s.ctx, user.ToDB())
 
 	if err != nil {
 		return User{}, custom_errors.NewUnknownError(err.Error())
 	}
 
-	return User{
-		ID:        createdUser.ID,
-		Email:     createdUser.Email,
-		Password:  "",
-		CreatedAt: createdUser.CreatedAt,
-		UpdatedAt: createdUser.UpdatedAt,
-	}, nil
+	return NewUserFromDB(createdUser), nil
 }
 
 func (s *Service) Get(id int64) (User, error) {
@@ -77,13 +80,7 @@ func (s *Service) Get(id int64) (User, error) {
 		return User{}, custom_errors.NewNotFoundError("user not found")
 	}
 
-	return User{
-		ID:        user.ID,
-		Email:     user.Email,
-		Password:  "",
-		CreatedAt: user.CreatedAt,
-		UpdatedAt: user.UpdatedAt,
-	}, nil
+	return NewUserFromDB(user), nil
 }
 
 func (s *Service) GetByEmail(email string) (User, error) {
@@ -93,13 +90,7 @@ func (s *Service) GetByEmail(email string) (User, error) {
 		return User{}, custom_errors.NewNotFoundError("user not found")
 	}
 
-	return User{
-		ID:        user.ID,
-		Email:     user.Email,
-		Password:  "",
-		CreatedAt: user.CreatedAt,
-		UpdatedAt: user.UpdatedAt,
-	}, nil
+	return NewUserFromDB(user), nil
 }
 
 func (s *Service) List(page int32, limit int32) ([]User, error) {
@@ -115,49 +106,36 @@ func (s *Service) List(page int32, limit int32) ([]User, error) {
 	var result []User
 
 	for _, user := range users {
-		result = append(result, User{
-			ID:        user.ID,
-			Email:     user.Email,
-			Password:  "",
-			CreatedAt: user.CreatedAt,
-			UpdatedAt: user.UpdatedAt,
-		})
+		result = append(result, NewUserFromDB(user))
 	}
 
 	return result, nil
 }
 
 func (s *Service) Update(id int64, user UpdateUserProps) (User, error) {
+	if err := s.validator.Validate(user); err != nil {
+		return User{}, custom_errors.NewValidationError(err.Error())
+	}
+
 	if _, err := s.db.Queries.GetUserById(s.ctx, id); err != nil {
 		return User{}, custom_errors.NewNotFoundError("user not found")
 	}
 
-	encryptPassword := sql.NullString{String: "", Valid: false}
 	if user.Password.Valid {
 		p, err := crypto.GenerateHashFromPassword(user.Password.String)
 		if err != nil {
 			return User{}, custom_errors.NewUnknownError(err.Error())
 		}
-		encryptPassword = sql.NullString{String: p, Valid: true}
+		user.Password = null.NewString(p, true)
 	}
 
-	updatedUser, err := s.db.Queries.UpdateUser(s.ctx, db.UpdateUserParams{
-		ID:       id,
-		Email:    user.Email,
-		Password: encryptPassword,
-	})
+	updatedUser, err := s.db.Queries.UpdateUser(s.ctx, user.ToDB())
 
 	if err != nil {
 		return User{}, custom_errors.NewUnknownError(err.Error())
 	}
 
-	return User{
-		ID:        updatedUser.ID,
-		Email:     updatedUser.Email,
-		Password:  "",
-		CreatedAt: updatedUser.CreatedAt,
-		UpdatedAt: updatedUser.UpdatedAt,
-	}, nil
+	return NewUserFromDB(updatedUser), nil
 }
 
 func (s *Service) Delete(id int64) error {

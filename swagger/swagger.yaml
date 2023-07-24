@@ -29,7 +29,19 @@ definitions:
         type: integer
       password:
         type: string
+      role:
+        $ref: '#/definitions/users.UserRole'
+      username:
+        type: string
     type: object
+  users.UserRole:
+    enum:
+    - admin
+    - default
+    type: string
+    x-enum-varnames:
+    - AdminRole
+    - DefaultRole
 info:
   contact: {}
 paths:

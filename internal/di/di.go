@@ -14,6 +14,7 @@ import (
 	"github.com/wesleyburlani/go-rest-api/pkg/crypto"
 	"github.com/wesleyburlani/go-rest-api/pkg/http"
 	"github.com/wesleyburlani/go-rest-api/pkg/logger"
+	"github.com/wesleyburlani/go-rest-api/pkg/validation"
 )
 
 func BuildContainer(cfg *config.Config) (*di.Container, error) {
@@ -30,6 +31,7 @@ func BuildContainer(cfg *config.Config) (*di.Container, error) {
 		},
 		),
 		di.Provide(logger.NewLogger),
+		di.Provide(validation.NewValidator),
 	)
 
 	auth := di.Options(

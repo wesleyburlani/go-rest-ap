@@ -336,8 +336,25 @@ const docTemplate = `{
                 },
                 "password": {
                     "type": "string"
+                },
+                "role": {
+                    "$ref": "#/definitions/users.UserRole"
+                },
+                "username": {
+                    "type": "string"
                 }
             }
+        },
+        "users.UserRole": {
+            "type": "string",
+            "enum": [
+                "admin",
+                "default"
+            ],
+            "x-enum-varnames": [
+                "AdminRole",
+                "DefaultRole"
+            ]
         }
     }
 }`

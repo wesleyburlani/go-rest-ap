@@ -2,7 +2,7 @@ package users_test
 
 import (
 	"context"
-	"database/sql"
+	"fmt"
 	"testing"
 
 	"github.com/brianvoe/gofakeit/v6"
@@ -13,6 +13,8 @@ import (
 	"github.com/wesleyburlani/go-rest-api/internal/users"
 	"github.com/wesleyburlani/go-rest-api/pkg/crypto"
 	custom_errors "github.com/wesleyburlani/go-rest-api/pkg/errors"
+	"github.com/wesleyburlani/go-rest-api/pkg/validation"
+	"gopkg.in/guregu/null.v4"
 )
 
 type ServiceTestSuite struct {
@@ -23,6 +25,7 @@ type ServiceTestSuite struct {
 	db     *db.Database
 	auth   *crypto.JwtAuth
 	svc    *users.Service
+	vld    *validation.Validator
 }
 
 func (s *ServiceTestSuite) SetupSuite() {
@@ -31,7 +34,8 @@ func (s *ServiceTestSuite) SetupSuite() {
 	s.logger = logrus.New()
 	s.db = db.NewDatabase(s.cfg, s.logger)
 	s.auth = crypto.NewJwtAuth([]byte(s.cfg.JwtSecretKey))
-	s.svc = users.NewService(s.db, s.logger, s.auth)
+	s.vld = validation.NewValidator()
+	s.svc = users.NewService(s.db, s.logger, s.auth, s.vld)
 }
 
 func generateRandomPassword() string {
@@ -44,8 +48,10 @@ func TestServiceTestSuite(t *testing.T) {
 
 func (s *ServiceTestSuite) TestCreateUser() {
 	originalUser := users.CreateUserProps{
+		Username: gofakeit.Username(),
 		Email:    gofakeit.Email(),
 		Password: generateRandomPassword(),
+		Role:     users.DefaultRole,
 	}
 
 	// make sure it wasn't created before
@@ -64,10 +70,61 @@ func (s *ServiceTestSuite) TestCreateUser() {
 	s.Equal("", createdUser.Password)
 }
 
-func (s *ServiceTestSuite) TestCreateUser_UserAlreadyExists() {
+func (s *ServiceTestSuite) TestCreateUser_InvalidEmail() {
 	user := users.CreateUserProps{
+		Username: gofakeit.Username(),
+		Email:    "invalid email",
+		Password: generateRandomPassword(),
+		Role:     users.DefaultRole,
+	}
+
+	_, err := s.svc.Create(user)
+	fmt.Println(err)
+	s.True(custom_errors.IsValidationError(err))
+}
+
+func (s *ServiceTestSuite) TestCreateUser_InvalidPassword() {
+	user := users.CreateUserProps{
+		Username: gofakeit.Username(),
+		Email:    gofakeit.Email(),
+		Password: "",
+		Role:     users.DefaultRole,
+	}
+
+	_, err := s.svc.Create(user)
+	s.True(custom_errors.IsValidationError(err))
+}
+
+func (s *ServiceTestSuite) TestCreateUser_InvalidRole() {
+	user := users.CreateUserProps{
+		Username: gofakeit.Username(),
 		Email:    gofakeit.Email(),
 		Password: generateRandomPassword(),
+		Role:     "invalid role",
+	}
+
+	_, err := s.svc.Create(user)
+	s.True(custom_errors.IsValidationError(err))
+}
+
+func (s *ServiceTestSuite) TestCreateUser_InvalidUsername() {
+	user := users.CreateUserProps{
+		Username: "",
+		Email:    gofakeit.Email(),
+		Password: generateRandomPassword(),
+		Role:     users.DefaultRole,
+	}
+
+	_, err := s.svc.Create(user)
+	s.True(custom_errors.IsValidationError(err))
+}
+
+func (s *ServiceTestSuite) TestCreateUser_UserAlreadyExists() {
+	user := users.CreateUserProps{
+		Username: gofakeit.Username(),
+		Email:    gofakeit.Email(),
+		Password: generateRandomPassword(),
+		Role:     users.DefaultRole,
 	}
 
 	_, err := s.svc.Create(user)
@@ -174,8 +231,10 @@ func (s *ServiceTestSuite) TestListUsers_Empty() {
 
 func (s *ServiceTestSuite) TestUpdateUser() {
 	user := users.CreateUserProps{
+		Username: gofakeit.Username(),
 		Email:    gofakeit.Email(),
 		Password: generateRandomPassword(),
+		Role:     users.DefaultRole,
 	}
 
 	createdUser, err := s.svc.Create(user)
@@ -185,8 +244,8 @@ func (s *ServiceTestSuite) TestUpdateUser() {
 	defer s.db.Queries.DeleteUserByEmail(s.ctx, user.Email)
 
 	updateUser := users.UpdateUserProps{
-		Email:    sql.NullString{String: gofakeit.Email(), Valid: true},
-		Password: sql.NullString{String: generateRandomPassword(), Valid: true},
+		Email:    null.NewString(gofakeit.Email(), true),
+		Password: null.NewString(generateRandomPassword(), true),
 	}
 
 	updatedUser, err := s.svc.Update(createdUser.ID, updateUser)
@@ -200,8 +259,8 @@ func (s *ServiceTestSuite) TestUpdateUser() {
 
 func (s *ServiceTestSuite) TestUpdateUser_UserDoesNotExist() {
 	updateUser := users.UpdateUserProps{
-		Email:    sql.NullString{String: gofakeit.Email(), Valid: true},
-		Password: sql.NullString{String: generateRandomPassword(), Valid: true},
+		Email:    null.NewString(gofakeit.Email(), true),
+		Password: null.NewString(generateRandomPassword(), true),
 	}
 
 	_, err := s.svc.Update(999999999, updateUser)
@@ -227,8 +286,8 @@ func (s *ServiceTestSuite) TestUpdateUser_UpdateEmail() {
 	defer s.db.Queries.DeleteUserByEmail(s.ctx, user.Email)
 
 	updateUser := users.UpdateUserProps{
-		Email:    sql.NullString{String: gofakeit.Email(), Valid: true},
-		Password: sql.NullString{String: "", Valid: false},
+		Email:    null.NewString(gofakeit.Email(), true),
+		Password: null.NewString("", false),
 	}
 
 	updatedUser, err := s.svc.Update(createdUser.ID, updateUser)
@@ -247,6 +306,8 @@ func (s *ServiceTestSuite) TestUpdateUser_UpdateEmail() {
 	s.Equal("", updatedUser.Password)
 	s.Equal(updatedUserWithPwd.Password, createdUserWithPwd.Password)
 }
+
+func (s *ServiceTestSuite) TestUpdate_InvalidEmail() {}
 
 func (s *ServiceTestSuite) TestDelete() {
 	user := users.CreateUserProps{

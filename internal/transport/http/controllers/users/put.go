@@ -1,7 +1,6 @@
 package users
 
 import (
-	"database/sql"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -81,14 +80,8 @@ func (ctl *Put) Handle(ctx *gin.Context) {
 		svc.
 		WithContext(ctx.Request.Context()).
 		Update(uri.ID, users.UpdateUserProps{
-			Email: sql.NullString{
-				String: body.Email.String,
-				Valid:  body.Email.Valid,
-			},
-			Password: sql.NullString{
-				String: body.Password.String,
-				Valid:  body.Password.Valid,
-			},
+			Email:    body.Email,
+			Password: body.Password,
 		})
 
 	if err != nil {
